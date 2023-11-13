@@ -1,0 +1,31 @@
+<mxfile host="65bd71144e">
+    <diagram name="Page-1" id="XoLLxt8FzWS-oLgArlQ2">
+        <mxGraphModel dx="769" dy="434" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="10" style="edgeStyle=none;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.75;entryDx=0;entryDy=0;" edge="1" parent="1" source="efpM14pIOARkfojI8Lqh-1" target="efpM14pIOARkfojI8Lqh-2">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="efpM14pIOARkfojI8Lqh-1" value="&amp;nbsp;NUCLEO" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="310" y="190" width="240" height="180" as="geometry"/>
+                </mxCell>
+                <mxCell id="12" style="edgeStyle=none;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;" edge="1" parent="1" source="efpM14pIOARkfojI8Lqh-2" target="efpM14pIOARkfojI8Lqh-1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="efpM14pIOARkfojI8Lqh-2" value="LCD Display" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="70" y="200" width="200" height="110" as="geometry"/>
+                </mxCell>
+                <mxCell id="efpM14pIOARkfojI8Lqh-3" value="PWM/SysTick" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="330" y="190" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="efpM14pIOARkfojI8Lqh-6" value="Memory Address (Variables &amp;amp; Settings)" style="whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="480" y="200" width="70" height="140" as="geometry"/>
+                </mxCell>
+                <mxCell id="efpM14pIOARkfojI8Lqh-8" value="Pomodoro Software" style="whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="330" y="290" width="140" height="50" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
