@@ -60,3 +60,7 @@ void LCD_Clear(){
 	*GPIOA_ODR |= 1; //Sets d0 to 1
 	*GPIOA_ODR &= ~(1 << 9 | 1 << 8); //Sets RS (PA_9) and R/W (PA_8) to 0
 }
+
+//Possibly create a dictionary with 2 arrays
+//Where we map each character to its 8 bit equivalent
+//'#' -> 0010 0011 , 'T' -> 0101 0100 , '*' -> 0010 1010 ,etc.
