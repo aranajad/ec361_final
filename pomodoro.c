@@ -2,4 +2,5 @@ int main(void){
 
 	while(1){}
 }
-//Why isn;'t this
+
+//Should do some things with TIM2 and GPIOB & Initializing them.
