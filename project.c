@@ -1,98 +1,195 @@
-/*
-Initializing the LCD will require the following steps; 
-1. Set 8-bit mode (Rs-D0) = 00001110xx
-2. Clear (Rs-D0) = 0000000001
-3. Display on (Rs-D0) = 0000001100
-*/
+/* LCD Wiring:
+ * 1 - GND									2 - Pin 15 &  NUCLEO 5V Source
+ * 3 - Potentiometer for Contrast Adjust	4 - D8 / PA_9 (RS)
+ * 5 - D7 / PA_8 (R/W)						6 - RC Enable Ckt
+ * 7 - A0 / PA_0 (d0)						8 - A1 / PA_1 (d1)
+ * 9 - D1 / PA_2 (d2)						10 - D0 /PA_3 (d3)
+ * 11 - A2 / PA_4 (d4)						12 - D13 / PA_5 (d5)
+ * 13 - D12 / PA_6 (d6)						14 - D11 / PA_7 (d7)
+ * 15 - Pin 2 (VDO)							16 - Nucleo GND
+ */
 
-/*
-Write Relax or Study
-1. Set DDRAM(Cursor) Address
-	-(Rs-D0) = 0011000101
-2. Write "Focus" or "Relax"
-  -Focus = Set 1001000110, then enable bit
-					 Set 1001101111, then enable bit
-					 Set 1001100011, then enable bit
-					 Set 1001110101, then enable bit
-					 Set 1001110011, then enable bit
-	
-	-Break = Set 1001000010, then enable bit
-					 Set 1001110010, then enable bit
-					 Set 1001100101, then enable bit
-					 Set 1001100001, then enable bit
-					 Set 1001101011, then enable bit
-					
-Writing the current time 
-1. Select 05 position (Rs-D0) = 0010000101
-2. Write time
-	-If two digits, write 10's Minute Place (Rs-D0) = 10(
-	-Write
-*/
-/*
-void LCD_init(void);
-void LCD_print(int,int,int,int);
-*/
+/* LCD Instruction Set:
+ * OPCODE = (RS)(R/W)(DB7:0)  - 8 bit length
+ * OPCODE = (RS)(R/W) | (DB7:4) | (DB7:4) - 4 bit length (D7-D4 are used twice)
+ * Clear  = 0b0000000001
+ * Return  = 0b000000001X
+ */
 
-int main(void)
-{
-	volatile unsigned int* RCC_AHB2ENR = (unsigned int *) 0x4002104C;
-	volatile unsigned int* GPIOA_BASE = (unsigned int *) 0x48000000;
-	volatile unsigned int* GPIOA_MODER = (unsigned int *) 0x48000000;
-	volatile unsigned int* GPIOA_ODR = (unsigned int *)0x48000014;
+volatile unsigned int* GPIOA_MODER =  (unsigned int*) 0x48000000;
+volatile unsigned int* GPIOA_ODR =    (unsigned int*) 0x48000014;
+volatile unsigned int* RCC_AHB2ENR 	= (unsigned int*) 0x4002104C;
+void GPIOA_Init();
+void LCD_Enable();
+void LCD_Init();
+void LCD_Clear();
+void LCD_Write(int,int,int,int,int,int,int,int);
+void LCD_Display(unsigned char D, unsigned char C, unsigned char B);
+
+int main(void){
+	GPIOA_Init();
+	LCD_Init();
+	LCD_Write(0,1,0,0,1,0,0,0); //Write decimal 72 (H)
+	LCD_Write(0,1,0,0,1,0,0,1); //Write decimal 73(I)
+	while(1){}
+}
+
+void GPIOA_Init(){
 	// Enable GPIOA peripheral clock
 	*RCC_AHB2ENR |= 1; // *RCC_AHB2ENR = *RCC_AHB2ENR | (1<<0);
 	// Set GPIOA PA9-0 as output
 	*GPIOA_MODER = (*GPIOA_MODER & ~(0xFFFFF)) | 0x55555;
-	
-	
-	// Initialize LCD ------------------------
-	//1. Set 8-bit mode (Rs-D0) = 00001110xx
-	*GPIOA_ODR = (*GPIOA_ODR & ~(0x3FF)) | (7 << 3);
-  //2. Clear (Rs-D0) = 0000000001
-	*GPIOA_ODR = (*GPIOA_ODR & ~(7 << 3)) | 1;
-  //3. Display on (Rs-D0) = 0000001100
-	*GPIOA_ODR = (*GPIOA_ODR & ~(1)) | (3 << 2);
-	
-	// Enter 25 
-	*GPIOA_ODR = (*GPIOA_ODR & ~(3 << 2)) | (1 << 9) | 50; // 1000110010
-	*GPIOA_ODR = (*GPIOA_ODR & ~(1 << 1)) | 5 | 53; // 1000110101
-	*GPIOA_ODR = *GPIOA_ODR | 53; // 1000110101
+}
 
-	while(1){}
+void LCD_Init(){
+	//_____Initilize the LCD to 4 bit length, 2 line, 5x8 Font_________________
+	//OPCODE = 0b00001(DL)(N)(F)XX; DL = 0 (4 bits), N = 1 (2 lines), F = 0 (5x8)
+	//OPCODE = 0b00 0010 10XX
+	//Must send OPCODE 4 bits at a time
+	*GPIOA_ODR &= ~(1<<9|1<<8); //RS & R/W = 0
+
+	//D7-D4 = 0010
+	*GPIOA_ODR &= ~(1<<7|1<<6|1<<4);
+	*GPIOA_ODR |= 1<<5;
+	
+	LCD_Enable();
+
+	//D7-D4 = 10XX
+	*GPIOA_ODR &= ~(1<<6);
+	*GPIOA_ODR |= 1<<7;
+
+	LCD_Enable();
+
+	//__________Clear the LCD Display_________________________________
+	//OPCODE = 0b 00 0000 0001
+
+	//RS & R/W = 0
+	*GPIOA_ODR &= ~(1<<9|1<<8);
+
+	//D7-D4 = 0000
+	*GPIOA_ODR &= ~((1<<7|1<<6|1<<5|1<<4));
+	LCD_Enable();
+
+	//D7-D4 = 0001
+	*GPIOA_ODR |= 1<<4;
+	LCD_Enable();
+
+	//___________________Return______Home______________________
+	//OPCODE = 0b 00 0000 0010
+
+	//RS & R/W = 0
+	*GPIOA_ODR &= ~(1<<9|1<<8);
+
+	//D7-D4 = 0000
+	*GPIOA_ODR &= ~((1<<7|1<<6|1<<5|1<<4));
+	LCD_Enable();
+
+	//D7-D4 = 0010
+	*GPIOA_ODR |= 1<<5;
+	LCD_Enable();
+
+	//____________________Turn the entire display on___________________
+	//OPCODE = 00 0000 1100
+
+	//RS & R/W = 0
+	*GPIOA_ODR &= ~(1<<9|1<<8);
+
+	//D7-D4 = 0000
+	*GPIOA_ODR &= ~((1<<7|1<<6|1<<5|1<<4));
+	LCD_Enable();
+
+	//D7-D4 = 1100
+	*GPIOA_ODR |= (1<<7|1<<6);
+	LCD_Enable();
+}
+
+void LCD_Enable(){
+	//Set PA_0 = 1
+	*GPIOA_ODR |= 1; 
+
+	//Busy wait
+	for(int i = 0; i < 4;i++){}
+
+	//Set PA_0 = 0
+	*GPIOA_ODR &= ~1; 
 	
 }
-/*
-void LCD_init(void)
-{
-	
+
+void LCD_Clear(){
+	//Clear the display (Write 0b0000000001)
+	volatile unsigned int* GPIOA_ODR = GPIOA_MODER + 0x14;
+	*GPIOA_ODR &= ~(0b1111111 << 1); //Sets d7-d1 to 0
+	*GPIOA_ODR |= 1; //Sets d0 to 1
+	*GPIOA_ODR &= ~(1 << 9 | 1 << 8); //Sets RS (PA_9) and R/W (PA_8) to 0
 }
-*/
 
+/* Generates an OPCODE where:
+ * RS = 1, R/W = 0
+ * d7-d4 are the first 4 bits set for the OPCODE
+ * l7-l4 are the lower 4 bits set for the OPCODE
+ * 
+ * OPCODE = 10 | (d7-d4) | (l7-l4)
+ */
+void LCD_Write(int d7, int d6, int d5, int d4, int l7, int l6, int l5, int l4){
+	//OPCODE = 10 BBBB BBBB
 
+	//[RS, R/W] = 10
+	*GPIOA_ODR |= (1<<9);
+	*GPIOA_ODR &= ~(1<<8);
 
+	//D7-D4 = d7-d4
 
+	//if d7 = 1 then set 7th bit in ODR to 1 else set it to 0
+	if(d7){
+		*GPIOA_ODR |= (d7<<7);
+	} else {
+		*GPIOA_ODR &= ~(1<<7);
+	}
 
+	if(d6){
+		*GPIOA_ODR |= (d6<<6);
+	} else {
+		*GPIOA_ODR &= ~(1<<6);
+	}
 
+	if(d5){
+		*GPIOA_ODR |= (d5<<5);
+	} else {
+		*GPIOA_ODR &= ~(1<<5);
+	}
 
+	if(d4){
+		*GPIOA_ODR |= (d4<<4);
+	} else {
+		*GPIOA_ODR &= ~(1<<4);
+	}
 
+	LCD_Enable();
 
+	//D7-D4 = l7-l4
+	if(l7){
+		*GPIOA_ODR |= (l7<<7);
+	} else {
+		*GPIOA_ODR &= ~(1<<7);
+	}
 
+	if(l6){
+		*GPIOA_ODR |= (l6<<6);
+	} else {
+		*GPIOA_ODR &= ~(1<<6);
+	}
 
+	if(l5){
+		*GPIOA_ODR |= (l5<<5);
+	} else {
+		*GPIOA_ODR &= ~(1<<5);
+	}
 
+	if(l4){
+		*GPIOA_ODR |= (l4<<4);
+	} else {
+		*GPIOA_ODR &= ~(1<<4);
+	}
 
-
-
-/*
-ASCII Number Values
-0 = 00110000
-1 = 00110001
-2 = 00110010
-3 = 00110011
-4 = 00110100
-5 = 00110101
-6 = 00110110
-7 = 00110111
-8 = 00111000
-9 = 00111001
-: = 00111010
-*/
+	LCD_Enable();
+}
