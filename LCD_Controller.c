@@ -57,7 +57,7 @@ int main(void)
 	*GPIOA_ODR = (*GPIOA_ODR & ~(3 << 2)) | (1 << 9) | 50; // 1000110010
 	*GPIOA_ODR = (*GPIOA_ODR & ~(1 << 1)) | 5 | 53; // 1000110101
 	*GPIOA_ODR = *GPIOA_ODR | 53; // 1000110101
-	
+
 }
 /*
 void LCD_init(void)
