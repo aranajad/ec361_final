@@ -41,6 +41,7 @@ void GPIOA_Init(){
 	*GPIOA_MODER = (*GPIOA_MODER & ~(0xFFFFF)) | 0x55555;
 }
 
+//Assumes RS is PA_9, R/W Select is PA_8, and d7-d4 are PA_7 to PA_4
 void LCD_Init(){
 	//_____Initilize the LCD to 4 bit length, 2 line, 5x8 Font_________________
 	//OPCODE = 0b00001(DL)(N)(F)XX; DL = 0 (4 bits), N = 1 (2 lines), F = 0 (5x8)
@@ -115,6 +116,7 @@ void LCD_Enable(){
 	
 }
 
+//Assumes RS is PA_9, R/W Select is PA_8, and d7-d4 are PA_7 to PA_4
 void LCD_Clear(){
 	//Clear the display (Write 0b0000000001)
 	volatile unsigned int* GPIOA_ODR = GPIOA_MODER + 0x14;
@@ -129,6 +131,7 @@ void LCD_Clear(){
  * l7-l4 are the lower 4 bits set for the OPCODE
  * 
  * OPCODE = 10 | (d7-d4) | (l7-l4)
+ * Assumes RS is PA_9, R/W Select is PA_8, and d7-d4 are PA_7 to PA_4
  */
 void LCD_Write(int d7, int d6, int d5, int d4, int l7, int l6, int l5, int l4){
 	//OPCODE = 10 BBBB BBBB
