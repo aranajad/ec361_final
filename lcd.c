@@ -10,7 +10,8 @@
  */
 
 /* LCD Instruction Set:
- * OPCODE = (RS)(R/W)(DB7:0)  
+ * OPCODE = (RS)(R/W)(DB7:0)  - 8 bit length
+ * OPCODE = (RS)(R/W) | (DB7:4) | (DB7:4) - 4 bit length (D7-D4 are used twice)
  * Clear  = 0b0000000001
  * Return  = 0b000000001X
  */
@@ -19,38 +20,99 @@ volatile unsigned int* GPIOA_MODER =  (unsigned int*) 0x48000000;
 volatile unsigned int* GPIOA_ODR =    (unsigned int*) 0x48000014;
 volatile unsigned int* RCC_AHB2ENR 	= (unsigned int*) 0x4002104C;
 void GPIOA_Init();
+void LCD_Enable();
 void LCD_Init();
 void LCD_Clear();
+void LCD_Write();
 void LCD_Display(unsigned char D, unsigned char C, unsigned char B);
 
 int main(void){
+	GPIOA_Init();
+	LCD_Init();
+	LCD_Write(0,1,0,0,1,0,0,0); //Write decimal 72 (H)
+	LCD_Write(0,1,0,0,1,0,0,0,1); //Write decimal 73(I)
 	while(1){}
 }
 
 void GPIOA_Init(){
-	*RCC_AHB2ENR |= 1; //Enable GPIOA Clock
-
+	// Enable GPIOA peripheral clock
+	*RCC_AHB2ENR |= 1; // *RCC_AHB2ENR = *RCC_AHB2ENR | (1<<0);
+	// Set GPIOA PA9-0 as output
+	*GPIOA_MODER = (*GPIOA_MODER & ~(0xFFFFF)) | 0x55555;
 }
-
 
 void LCD_Init(){
-	//Initilize the LCD to 8 bit length, 2 line, 5x8 Font 
-	//OPCODE = 0b00001(DL)(N)(F)XX; DL = 1 (8 bits), N = 1 (2 lines), F = 0 (5x8)
-	//OPCODE = 0b00001110XX
-	*GPIOA_ODR &= ~(1<<9|1<<8|1<<7|1<<6|1<<2); //RS, R/W, d7-d6, d2 = 0
-	*GPIOA_ODR |= (1<<3|1<<4|1<<5); //d5-d3 = 1
+	//_____Initilize the LCD to 4 bit length, 2 line, 5x8 Font_________________
+	//OPCODE = 0b00001(DL)(N)(F)XX; DL = 0 (4 bits), N = 1 (2 lines), F = 0 (5x8)
+	//OPCODE = 0b00 0010 10XX
+	//Must send OPCODE 4 bits at a time
+	*GPIOA_ODR &= ~(1<<9|1<<8); //RS & R/W = 0
 
-	//Turn the entire display on
-	*GPIOA_ODR &= ~(1<<9|1<<8|1<<7|1<<6|1<<5|1<<4); //RS, R/W, d7-d4 = 0
-	*GPIOA_ODR |= (1<<3|1<<2);//|finish)
-	LCD_Clear();
+	//D7-D4 = 0010
+	*GPIOA_ODR &= ~(1<<7|1<<6|1<<4);
+	*GPIOA_ODR |= 1<<5;
+	
+	LCD_Enable();
+
+	//D7-D4 = 10XX
+	*GPIOA_ODR &= ~(1<<6);
+	*GPIOA_ODR |= 1<<7;
+
+	LCD_Enable();
+
+	//__________Clear the LCD Display_________________________________
+	//OPCODE = 0b 00 0000 0001
+
+	//RS & R/W = 0
+	*GPIOA_ODR &= ~(1<<9|1<<8);
+
+	//D7-D4 = 0000
+	*GPIOA_ODR &= ~((1<<7|1<<6|1<<5|1<<4));
+	LCD_Enable();
+
+	//D7-D4 = 0001
+	*GPIOA_ODR |= 1<<4;
+	LCD_Enable();
+
+	//___________________Return______Home______________________
+	//OPCODE = 0b 00 0000 0010
+
+	//RS & R/W = 0
+	*GPIOA_ODR &= ~(1<<9|1<<8);
+
+	//D7-D4 = 0000
+	*GPIOA_ODR &= ~((1<<7|1<<6|1<<5|1<<4));
+	LCD_Enable();
+
+	//D7-D4 = 0010
+	*GPIOA_ODR |= 1<<5;
+	LCD_Enable();
+
+	//____________________Turn the entire display on___________________
+	//OPCODE = 00 0000 1100
+
+	//RS & R/W = 0
+	*GPIOA_ODR &= ~(1<<9|1<<8);
+
+	//D7-D4 = 0000
+	*GPIOA_ODR &= ~((1<<7|1<<6|1<<5|1<<4));
+	LCD_Enable();
+
+	//D7-D4 = 1100
+	*GPIOA_ODR |= (1<<7|1<<6);
+	LCD_Enable();
 }
 
-void LCD_Display(unsigned char D, unsigned char C, unsigned char B){
-	*GPIOA_ODR &= ~(1<<9|1<<8|1<<7|1<<6|1<<5|1<<4); //RS, R/W, d7-d4 = 0
-	*GPIOA_ODR |= (1<<3);
+void LCD_Enable(){
+	//Set PA_0 = 1
+	*GPIOA_ODR |= 1; 
 
+	//Busy wait
+	for(int i = 0; i < 4;i++){}
 
+	//Set PA_0 = 0
+	*GPIOA_ODR &= ~1; 
+	
 }
 
 void LCD_Clear(){
@@ -61,6 +123,73 @@ void LCD_Clear(){
 	*GPIOA_ODR &= ~(1 << 9 | 1 << 8); //Sets RS (PA_9) and R/W (PA_8) to 0
 }
 
-//Possibly create a dictionary with 2 arrays
-//Where we map each character to its 8 bit equivalent
-//'#' -> 0010 0011 , 'T' -> 0101 0100 , '*' -> 0010 1010 ,etc.
+/* Generates an OPCODE where:
+ * RS = 1, R/W = 0
+ * d7-d4 are the first 4 bits set for the OPCODE
+ * l7-l4 are the lower 4 bits set for the OPCODE
+ * 
+ * OPCODE = 10 | (d7-d4) | (l7-l4)
+ */
+void LCD_Write(int d7, int d6, int d5, int d4, int l7, int l6, int l5, int l4){
+	//OPCODE = 10 BBBB BBBB
+
+	//[RS, R/W] = 10
+	*GPIOA_ODR |= (1<<9);
+	*GPIOA_ODR &= ~(1<<8);
+
+	//D7-D4 = d7-d4
+
+	//if d7 = 1 then set 7th bit in ODR to 1 else set it to 0
+	if(d7){
+		*GPIOA_ODR |= (d7<<7);
+	} else {
+		*GPIOA_ODR &= ~(1<<7);
+	}
+
+	if(d6){
+		*GPIOA_ODR |= (d6<<6);
+	} else {
+		*GPIOA_ODR &= ~(1<<6);
+	}
+
+	if(d5){
+		*GPIOA_ODR |= (d5<<5);
+	} else {
+		*GPIOA_ODR &= ~(1<<5);
+	}
+
+	if(d4){
+		*GPIOA_ODR |= (d4<<4);
+	} else {
+		*GPIOA_ODR &= ~(1<<4);
+	}
+
+	LCD_Enable();
+
+	//D7-D4 = l7-l4
+	if(l7){
+		*GPIOA_ODR |= (l7<<7);
+	} else {
+		*GPIOA_ODR &= ~(1<<7);
+	}
+
+	if(l6){
+		*GPIOA_ODR |= (l6<<6);
+	} else {
+		*GPIOA_ODR &= ~(1<<6);
+	}
+
+	if(l5){
+		*GPIOA_ODR |= (l5<<5);
+	} else {
+		*GPIOA_ODR &= ~(1<<5);
+	}
+
+	if(l4){
+		*GPIOA_ODR |= (l4<<4);
+	} else {
+		*GPIOA_ODR &= ~(1<<4);
+	}
+
+	LCD_Enable();
+}
