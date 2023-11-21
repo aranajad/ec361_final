@@ -23,7 +23,7 @@ void GPIOA_Init();
 void LCD_Enable();
 void LCD_Init();
 void LCD_Clear();
-void LCD_Write(int,int,int,int,int,int,int,int);
+void LCD_Write();
 void LCD_Display(unsigned char D, unsigned char C, unsigned char B);
 
 int main(void){
@@ -48,6 +48,12 @@ void LCD_Init(){
 	//Must send OPCODE 4 bits at a time
 	*GPIOA_ODR &= ~(1<<9|1<<8); //RS & R/W = 0
 
+	//D7-D4 = 0010
+	*GPIOA_ODR &= ~(1<<7|1<<6|1<<4);
+	*GPIOA_ODR |= 1<<5;
+	
+	LCD_Enable();
+	
 	//D7-D4 = 0010
 	*GPIOA_ODR &= ~(1<<7|1<<6|1<<4);
 	*GPIOA_ODR |= 1<<5;
@@ -108,7 +114,7 @@ void LCD_Enable(){
 	*GPIOA_ODR |= 1; 
 
 	//Busy wait
-	for(int i = 0; i < 4;i++){}
+	for(int i = 0; i < 4003;i++){}
 
 	//Set PA_0 = 0
 	*GPIOA_ODR &= ~1; 
