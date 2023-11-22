@@ -23,9 +23,10 @@ void GPIOA_Init();
 void LCD_Enable();
 void LCD_Init();
 void LCD_Clear();
+void LCD_ReturnHome();
 void LCD_Write(int, int,int,int,int,int,int,int);
 void LCD_Write2(unsigned int);
-void LCD_Display(unsigned char D, unsigned char C, unsigned char B);
+void LCD_Display(unsigned int);
 
 int main(void){
 	GPIOA_Init();
@@ -78,34 +79,9 @@ void LCD_Init(){
 
 	LCD_Enable();
 
-	//__________Clear the LCD Display_________________________________
-	//OPCODE = 0b 00 0000 0001
+	LCD_Clear();
 
-	//RS & R/W = 0
-	*GPIOA_ODR &= ~(1<<2|1<<1);
-
-	//D7-D4 = 0000
-	*GPIOA_ODR &= ~((1<<7|1<<6|1<<5|1<<4));
-	LCD_Enable();
-
-	//D7-D4 = 0001
-	*GPIOA_ODR |= 1<<4;
-	LCD_Enable();
-
-	//___________________Return______Home______________________
-	//OPCODE = 0b 00 0000 0010
-
-	//RS & R/W = 0
-	*GPIOA_ODR &= ~(1<<2|1<<1);
-
-	//D7-D4 = 0000
-	*GPIOA_ODR &= ~((1<<7|1<<6|1<<5|1<<4));
-	LCD_Enable();
-
-	//D7-D4 = 0010
-	*GPIOA_ODR |= 1<<5;
-	LCD_Enable();
-
+	LCD_ReturnHome();
 	//____________________Turn the entire display on___________________
 	//OPCODE = 00 0000 1100
 
@@ -135,11 +111,19 @@ void LCD_Enable(){
 
 //Assumes RS is PA_2, R/W Select is PA_1, and d7-d4 are PA_7 to PA_4
 void LCD_Clear(){
-	//Clear the display (Write 0b0000000001)
-	volatile unsigned int* GPIOA_ODR = GPIOA_MODER + 0x14;
-	*GPIOA_ODR &= ~(0b1111111 << 1); //Sets d7-d1 to 0
-	*GPIOA_ODR |= 1; //Sets d0 to 1
-	*GPIOA_ODR &= ~(1 << 9 | 1 << 8); //Sets RS (PA_2) and R/W (PA_1) to 0
+	//Clear the display (Send OPCODE = 0b0000000001)
+	//OPCODE = 0b 00 0000 0001
+
+	//RS & R/W = 0
+	*GPIOA_ODR &= ~(1<<2|1<<1);
+
+	//D7-D4 = 0000
+	*GPIOA_ODR &= ~((1<<7|1<<6|1<<5|1<<4));
+	LCD_Enable();
+
+	//D7-D4 = 0001
+	*GPIOA_ODR |= 1<<4;
+	LCD_Enable();
 }
 
 /* Generates an OPCODE where:
@@ -233,13 +217,44 @@ void LCD_Write2(unsigned int asc){
 	*GPIOA_ODR &= ~(1<<1);
 
 	//D7-D4 = d7-d4
-	*GPIOA_ODR &= ~(0b1111<<4); //0s out D7-D4
-	*GPIOA_ODR |= asc >> 4; //Takes upper 4 bits of asc
+	*GPIOA_ODR &= ~(0b1111<<4); //D7-D4 = 0000
+	*GPIOA_ODR |= ((asc >> 4)& 0xF); //Takes upper 4 bits of asc
 
 	LCD_Enable();
 
 	*GPIOA_ODR &= ~(0b1111<<4); //0s out D7-D4
 	*GPIOA_ODR |= asc & 0xF; // Takes lower 4 bits of asc
 
+	LCD_Enable();
+}
+
+void LCD_ReturnHome(){
+	//OPCODE = 0b 00 0000 0010
+
+	//RS & R/W = 00
+	*GPIOA_ODR &= ~(1<<2|1<<1);
+
+	//D7-D4 = 0000
+	*GPIOA_ODR &= ~((1<<7|1<<6|1<<5|1<<4));
+	LCD_Enable();
+
+	//D7-D4 = 0010
+	*GPIOA_ODR |= 1<<5;
+	LCD_Enable();
+}
+
+void LCD_Display(unsigned int mode){
+	//OPCODE = 00 0000 1100
+
+	//RS & R/W = 0
+	*GPIOA_ODR &= ~(1<<2|1<<1);
+
+	//D7-D4 = 0000
+	*GPIOA_ODR &= ~((1<<7|1<<6|1<<5|1<<4));
+	LCD_Enable();
+
+	//D7-D4 = 1100
+	*GPIOA_ODR &= ~(15<<4); //Set D7-D4 to 0000
+	*GPIOA_ODR |= (1<<7|(mode & 1)); // Sets D7-D4 to 1[mode]00
 	LCD_Enable();
 }
