@@ -39,25 +39,19 @@ void LCD_SetAddress(unsigned char);
 void LCD_Display(unsigned char D, unsigned char C, unsigned char B);
 
 int main(void){
+	int j = 0;
 	GPIO_Init();
 	LCD_Init();
 	LCD_Clear();
-	LCD_WriteBits(1,1,1,1,1,1,1,1);
-	LCD_WriteChar((unsigned char) 0xF);
-	LCD_WriteChar((unsigned char) 0xF);
-	LCD_WriteChar((unsigned char) 0xF);
- 	LCD_WriteBits(0,1,0,0,1,0,0,0); //Write decimal 72 (H)
-	LCD_WriteChar('I');
-	LCD_WriteChar(' ');
-	LCD_WriteChar((unsigned char) 0xF);
-	LCD_WriteStr("WORLD",5);
-	LCD_WriteChar((unsigned char) 0xF);
-	LCD_WriteChar((unsigned char) 0xF);
-	LCD_WriteChar((unsigned char) 0xF);
-	LCD_WriteStr("aaaa",4);
-	LCD_SetAddress(0x40);
-	LCD_WriteStr("DDDDDDDD",8);
-	while(1){}
+	while(1){
+		LCD_Init();
+		LCD_WriteChar(0xFF);
+		LCD_WriteChar(0xFF);
+		LCD_WriteChar(0xFF);
+		LCD_WriteChar((unsigned char)(('0'+j)%10));
+		for(int i = 0;i<200000;i++){}
+		LCD_Clear();
+	}
 }
 
 /* Enables Pins 0 - 16 as O/P
@@ -66,10 +60,10 @@ int main(void){
  */
 void GPIO_Init(){
 	// Enable GPIOA peripheral clock
-	*RCC_AHB2ENR |= (1|1<<2); //Turns off GPIOA & GPIOC
+	*RCC_AHB2ENR |= (unsigned int)(1|1<<2); //Turns off GPIOA & GPIOC
 	// Set GPIOA PA9-0 as output
-	*GPIOA_MODER = (*GPIOA_MODER & ~(0xFFFFF)) | 0x5555;
-	*GPIOC_MODER = (*GPIOA_MODER & ~(0xF)) | 0x5;
+	*GPIOA_MODER = (*GPIOA_MODER & ~(0xFFFFF)) | (unsigned int)0x5555;
+	*GPIOC_MODER = (*GPIOA_MODER & ~(0xF)) |(unsigned int) 0x5;
 }
 
 //Assumes RS is PA_2, R/W Select is PA_1, and d7-d4 are PA_7 to PA_4
@@ -82,22 +76,22 @@ void LCD_Init(){
 	LCD_SetControlBits(OFF,OFF);
 
 	//D7-D4 = 0010 & D3-D0 = 0000 (Shorted on board) 
-	*GPIOA_ODR &= ~(1<<7|1<<6|1<<4);
-	*GPIOA_ODR |= 1<<5;
+	*GPIOA_ODR &= (unsigned int)~(1<<7|1<<6|1<<4);
+	*GPIOA_ODR |= (unsigned int)1<<5;
 	
 	//OPCODE = 00 0010 0000 (4 bits, 1 line, 5x8 Font)
 	LCD_Enable();
 	
 	//Must send OPCODE 4 bits at a time
 	//D7-D4 = 0010
-	*GPIOA_ODR &= ~(1<<7|1<<6|1<<4);
-	*GPIOA_ODR |= 1<<5;
+	*GPIOA_ODR &= (unsigned int)~(1<<7|1<<6|1<<4);
+	*GPIOA_ODR |= (unsigned int)1<<5;
 	LCD_Enable();
 
 	//D7-D4 = 11XX
 	//*GPIOA_ODR &= ~(1<<6);
-	*GPIOA_ODR |= 1<<7;
-	*GPIOA_ODR |= 1<<6;
+	*GPIOA_ODR |= (unsigned int)1<<7;
+	*GPIOA_ODR |= (unsigned int)1<<6;
 
 	//OPCODE = 00 0010 11XX (4 bits, 2 line, 5x11 font)
 	LCD_Enable();
@@ -140,11 +134,11 @@ void LCD_Init(){
 	LCD_SetControlBits(OFF, OFF);
 
 	//D7-D4 = 0000
-	*GPIOA_ODR &= ~((1<<7|1<<6|1<<5|1<<4));
+	*GPIOA_ODR &= (unsigned int)~((1<<7|1<<6|1<<5|1<<4));
 	LCD_Enable();
 
 	//D7-D4 = 1100
-	*GPIOA_ODR |= (1<<7|1<<6);
+	*GPIOA_ODR |= (unsigned int)(1<<7|1<<6);
 	LCD_Enable();
 }
 
@@ -153,10 +147,10 @@ void LCD_Enable(){
 	*GPIOA_ODR |= 1; 
 
 	//Busy wait (1mS)
-	for(int i = 0; i < 4003;i++){}
+	for(int i = 0; i < 8003;i++){}
 
 	//Set PA_0 = 0
-	*GPIOA_ODR &= ~1; 
+	*GPIOA_ODR &= (unsigned int)~1; 
 	
 }
 
@@ -167,11 +161,11 @@ void LCD_ReturnHome(){
 	LCD_SetControlBits(OFF, OFF);
 
 	//D7-D4 = 0000
-	*GPIOA_ODR &= ~((1<<7|1<<6|1<<5|1<<4));
+	*GPIOA_ODR &= (unsigned int)~((1<<7|1<<6|1<<5|1<<4));
 	LCD_Enable();
 
 	//D7-D4 = 0010
-	*GPIOA_ODR |= 1<<5;
+	*GPIOA_ODR |= (unsigned int)1<<5;
 	LCD_Enable();
 }
 
@@ -183,11 +177,11 @@ void LCD_Clear(){
 	LCD_SetControlBits(OFF, OFF);
 
 	//D7-D4 = 0000
-	*GPIOA_ODR &= ~((1<<7|1<<6|1<<5|1<<4));
+	*GPIOA_ODR &= (unsigned int)~((1<<7|1<<6|1<<5|1<<4));
 	LCD_Enable();
 
 	//D7-D4 = 0001
-	*GPIOA_ODR |= 1<<4;
+	*GPIOA_ODR |= (unsigned int)1<<4;
 	LCD_Enable();
 }
 
@@ -280,13 +274,13 @@ void LCD_WriteChar(unsigned char asc){
 	LCD_SetControlBits(ON,OFF);
 
 	//D7-D4 = d7-d4
-	*GPIOA_ODR &= ~(15<<4); //0s out D7-D4
-	*GPIOA_ODR |= (asc>>4)<<4; //Takes upper 4 bits of asc
+	*GPIOA_ODR &= (unsigned int)~(15<<4); //0s out D7-D4
+	*GPIOA_ODR |= (unsigned int)(asc>>4)<<4; //Takes upper 4 bits of asc
 
 	LCD_Enable();
 
-	*GPIOA_ODR &= ~(15<<4); //0s out D7-D4
-	*GPIOA_ODR |= ((asc & 0xF)<<4); // Takes lower 4 bits of asc
+	*GPIOA_ODR &= (unsigned int)~(15<<4); //0s out D7-D4
+	*GPIOA_ODR |= (unsigned int)((asc & 0xF)<<4); // Takes lower 4 bits of asc
 
 	LCD_Enable();
 }
@@ -306,15 +300,14 @@ void LCD_SetAddress(unsigned char addr){
 	LCD_SetControlBits(OFF,OFF);
 
 	//D7-D4 = d7-d4
-	*GPIOA_ODR &= ~(15<<4); //0s out D7-D4
+	*GPIOA_ODR &= (unsigned int)~(15<<4); //0s out D7-D4
 	*GPIOA_ODR |= (addr>>4)<<4; //Takes upper 4 bits of asc
-	*GPIOA_ODR |= 1<<7; //Sets D7 to 1
 
+	*GPIOA_ODR |= 1<<7; //Sets D7 to 1 (Has to be after addr>>4 or else d7 won't be 1)
 	LCD_Enable();
 
 	*GPIOA_ODR &= ~(15<<4); //0s out D7-D4
 	*GPIOA_ODR |= ((addr & 0xF)<<4); // Takes lower 4 bits of asc
-
 	LCD_Enable();
 }
 /* Sets the control bits RS and R_W

@@ -27,236 +27,194 @@ Project File Date:  11/17/2023
 <h2>Output:</h2>
 *** Using Compiler 'V6.19', folder: 'C:\Keil_v5\ARM\ARMCLANG\Bin'
 Build target 'Target 1'
-project.c(20): warning: no previous extern declaration for non-static variable 'GPIOA_MODER' [-Wmissing-variable-declarations]
+project.c(24): warning: no previous extern declaration for non-static variable 'GPIOA_MODER' [-Wmissing-variable-declarations]
 volatile unsigned int* GPIOA_MODER =  (unsigned int*) 0x48000000;
-                       ^
-project.c(20): note: declare 'static' if the variable is not intended to be used outside of this translation unit
-volatile unsigned int* GPIOA_MODER =  (unsigned int*) 0x48000000;
-         ^
-project.c(21): warning: no previous extern declaration for non-static variable 'GPIOC_MODER' [-Wmissing-variable-declarations]
-volatile unsigned int* GPIOC_MODER =  (unsigned int*) 0x48000800;
-                       ^
-project.c(21): note: declare 'static' if the variable is not intended to be used outside of this translation unit
-volatile unsigned int* GPIOC_MODER =  (unsigned int*) 0x48000800;
-         ^
-project.c(22): warning: no previous extern declaration for non-static variable 'GPIOA_ODR' [-Wmissing-variable-declarations]
-volatile unsigned int* GPIOA_ODR =    (unsigned int*) 0x48000014;
-                       ^
-project.c(22): note: declare 'static' if the variable is not intended to be used outside of this translation unit
-volatile unsigned int* GPIOA_ODR =    (unsigned int*) 0x48000014;
-         ^
-project.c(23): warning: no previous extern declaration for non-static variable 'GPIOC_ODR' [-Wmissing-variable-declarations]
-volatile unsigned int* GPIOC_ODR =    (unsigned int*) 0x48000814;
-                       ^
-project.c(23): note: declare 'static' if the variable is not intended to be used outside of this translation unit
-volatile unsigned int* GPIOC_ODR =    (unsigned int*) 0x48000814;
-         ^
-project.c(24): warning: no previous extern declaration for non-static variable 'RCC_AHB2ENR' [-Wmissing-variable-declarations]
-volatile unsigned int* RCC_AHB2ENR      = (unsigned int*) 0x4002104C;
                        ^
 project.c(24): note: declare 'static' if the variable is not intended to be used outside of this translation unit
+volatile unsigned int* GPIOA_MODER =  (unsigned int*) 0x48000000;
+         ^
+project.c(25): warning: no previous extern declaration for non-static variable 'GPIOC_MODER' [-Wmissing-variable-declarations]
+volatile unsigned int* GPIOC_MODER =  (unsigned int*) 0x48000800;
+                       ^
+project.c(25): note: declare 'static' if the variable is not intended to be used outside of this translation unit
+volatile unsigned int* GPIOC_MODER =  (unsigned int*) 0x48000800;
+         ^
+project.c(26): warning: no previous extern declaration for non-static variable 'GPIOA_ODR' [-Wmissing-variable-declarations]
+volatile unsigned int* GPIOA_ODR =    (unsigned int*) 0x48000014;
+                       ^
+project.c(26): note: declare 'static' if the variable is not intended to be used outside of this translation unit
+volatile unsigned int* GPIOA_ODR =    (unsigned int*) 0x48000014;
+         ^
+project.c(27): warning: no previous extern declaration for non-static variable 'GPIOC_ODR' [-Wmissing-variable-declarations]
+volatile unsigned int* GPIOC_ODR =    (unsigned int*) 0x48000814;
+                       ^
+project.c(27): note: declare 'static' if the variable is not intended to be used outside of this translation unit
+volatile unsigned int* GPIOC_ODR =    (unsigned int*) 0x48000814;
+         ^
+project.c(28): warning: no previous extern declaration for non-static variable 'RCC_AHB2ENR' [-Wmissing-variable-declarations]
+volatile unsigned int* RCC_AHB2ENR      = (unsigned int*) 0x4002104C;
+                       ^
+project.c(28): note: declare 'static' if the variable is not intended to be used outside of this translation unit
 volatile unsigned int* RCC_AHB2ENR      = (unsigned int*) 0x4002104C;
          ^
-project.c(25): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
+project.c(29): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
 void GPIO_Init();
               ^
                void
-project.c(26): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
+project.c(31): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
 void LCD_Enable();
                ^
                 void
-project.c(27): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
+project.c(32): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
 void LCD_Init();
              ^
               void
-project.c(28): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
+project.c(33): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
 void LCD_Clear();
               ^
                void
-project.c(29): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
+project.c(34): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
 void LCD_ReturnHome();
                    ^
                     void
-project.c(62): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
+project.c(42): warning: unused variable 'j' [-Wunused-variable]
+        int j = 0;
+            ^
+project.c(54): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
 void GPIO_Init(){
               ^
                void
-project.c(66): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
-        *GPIOA_MODER = (*GPIOA_MODER & ~(0xFFFFF)) | 0x5555;
+project.c(58): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+        *GPIOA_MODER = (*GPIOA_MODER & ~(0xFFFFF)) | (unsigned int)0x5555;
                                      ~ ^~~~~~~~~~
-project.c(67): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
-        *GPIOC_MODER = (*GPIOA_MODER & ~(0xFFFFF)) | 0x5555;
-                                     ~ ^~~~~~~~~~
-project.c(62): warning: no previous prototype for function 'GPIO_Init' [-Wmissing-prototypes]
+project.c(59): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+        *GPIOC_MODER = (*GPIOA_MODER & ~(0xF)) |(unsigned int) 0x5;
+                                     ~ ^~~~~~
+project.c(54): warning: no previous prototype for function 'GPIO_Init' [-Wmissing-prototypes]
 void GPIO_Init(){
-     ^
-project.c(25): note: this declaration is not a prototype; add 'void' to make it a prototype for a zero-parameter function
-void GPIO_Init();
-     ^
-               void
-project.c(71): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
-void LCD_Init(){
-             ^
-              void
-project.c(77): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
-        *GPIOC_ODR &= ~(1<<1|1<<0); //RS & R/W = 00
-                   ~~ ^~~~~~~~~~~~
-project.c(80): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
-        *GPIOA_ODR &= ~(1<<7|1<<6|1<<4);
-                   ~~ ^~~~~~~~~~~~~~~~~
-project.c(88): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
-        *GPIOA_ODR &= ~(1<<7|1<<6|1<<4);
-                   ~~ ^~~~~~~~~~~~~~~~~
-project.c(135): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
-        *GPIOC_ODR &= ~(1<<1|1<<0);
-                   ~~ ^~~~~~~~~~~~
-project.c(138): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
-        *GPIOA_ODR &= ~((1<<7|1<<6|1<<5|1<<4));
-                   ~~ ^~~~~~~~~~~~~~~~~~~~~~~~
-project.c(71): warning: no previous prototype for function 'LCD_Init' [-Wmissing-prototypes]
-void LCD_Init(){
-     ^
-project.c(27): note: this declaration is not a prototype; add 'void' to make it a prototype for a zero-parameter function
-void LCD_Init();
-     ^
-              void
-project.c(146): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
-void LCD_Enable(){
-               ^
-                void
-project.c(154): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
-        *GPIOA_ODR &= ~1; 
-                   ~~ ^~
-project.c(146): warning: no previous prototype for function 'LCD_Enable' [-Wmissing-prototypes]
-void LCD_Enable(){
-     ^
-project.c(26): note: this declaration is not a prototype; add 'void' to make it a prototype for a zero-parameter function
-void LCD_Enable();
-     ^
-                void
-project.c(158): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
-void LCD_ReturnHome(){
-                   ^
-                    void
-project.c(162): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
-        *GPIOC_ODR &= ~(1<<1|1<<0);
-                   ~~ ^~~~~~~~~~~~
-project.c(165): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
-        *GPIOA_ODR &= ~((1<<7|1<<6|1<<5|1<<4));
-                   ~~ ^~~~~~~~~~~~~~~~~~~~~~~~
-project.c(158): warning: no previous prototype for function 'LCD_ReturnHome' [-Wmissing-prototypes]
-void LCD_ReturnHome(){
      ^
 project.c(29): note: this declaration is not a prototype; add 'void' to make it a prototype for a zero-parameter function
+void GPIO_Init();
+     ^
+               void
+project.c(63): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
+void LCD_Init(){
+             ^
+              void
+project.c(63): warning: no previous prototype for function 'LCD_Init' [-Wmissing-prototypes]
+void LCD_Init(){
+     ^
+project.c(32): note: this declaration is not a prototype; add 'void' to make it a prototype for a zero-parameter function
+void LCD_Init();
+     ^
+              void
+project.c(138): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
+void LCD_Enable(){
+               ^
+                void
+project.c(138): warning: no previous prototype for function 'LCD_Enable' [-Wmissing-prototypes]
+void LCD_Enable(){
+     ^
+project.c(31): note: this declaration is not a prototype; add 'void' to make it a prototype for a zero-parameter function
+void LCD_Enable();
+     ^
+                void
+project.c(150): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
+void LCD_ReturnHome(){
+                   ^
+                    void
+project.c(150): warning: no previous prototype for function 'LCD_ReturnHome' [-Wmissing-prototypes]
+void LCD_ReturnHome(){
+     ^
+project.c(34): note: this declaration is not a prototype; add 'void' to make it a prototype for a zero-parameter function
 void LCD_ReturnHome();
      ^
                     void
-project.c(173): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
+project.c(165): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
 void LCD_Clear(){
               ^
                void
-project.c(178): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
-        *GPIOC_ODR &= ~(1<<1|1<<0);
-                   ~~ ^~~~~~~~~~~~
-project.c(181): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
-        *GPIOA_ODR &= ~((1<<7|1<<6|1<<5|1<<4));
-                   ~~ ^~~~~~~~~~~~~~~~~~~~~~~~
-project.c(173): warning: no previous prototype for function 'LCD_Clear' [-Wmissing-prototypes]
+project.c(165): warning: no previous prototype for function 'LCD_Clear' [-Wmissing-prototypes]
 void LCD_Clear(){
      ^
-project.c(28): note: this declaration is not a prototype; add 'void' to make it a prototype for a zero-parameter function
+project.c(33): note: this declaration is not a prototype; add 'void' to make it a prototype for a zero-parameter function
 void LCD_Clear();
      ^
                void
-project.c(202): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
-        *GPIOC_ODR &= ~(1<<0);
-                   ~~ ^~~~~~~
-project.c(208): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+project.c(199): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
                 *GPIOA_ODR |= (d7<<7);
                            ~~  ~~^~~
-project.c(210): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+project.c(201): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
                 *GPIOA_ODR &= ~(1<<7);
                            ~~ ^~~~~~~
-project.c(214): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+project.c(205): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
                 *GPIOA_ODR |= (d6<<6);
                            ~~  ~~^~~
-project.c(216): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+project.c(207): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
                 *GPIOA_ODR &= ~(1<<6);
                            ~~ ^~~~~~~
-project.c(220): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+project.c(211): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
                 *GPIOA_ODR |= (d5<<5);
                            ~~  ~~^~~
-project.c(222): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+project.c(213): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
                 *GPIOA_ODR &= ~(1<<5);
                            ~~ ^~~~~~~
-project.c(226): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+project.c(217): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
                 *GPIOA_ODR |= (d4<<4);
                            ~~  ~~^~~
-project.c(228): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+project.c(219): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
                 *GPIOA_ODR &= ~(1<<4);
                            ~~ ^~~~~~~
-project.c(235): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+project.c(226): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
                 *GPIOA_ODR |= (l7<<7);
                            ~~  ~~^~~
-project.c(237): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+project.c(228): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
                 *GPIOA_ODR &= ~(1<<7);
                            ~~ ^~~~~~~
-project.c(241): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+project.c(232): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
                 *GPIOA_ODR |= (l6<<6);
                            ~~  ~~^~~
-project.c(243): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+project.c(234): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
                 *GPIOA_ODR &= ~(1<<6);
                            ~~ ^~~~~~~
-project.c(247): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+project.c(238): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
                 *GPIOA_ODR |= (l5<<5);
                            ~~  ~~^~~
-project.c(249): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+project.c(240): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
                 *GPIOA_ODR &= ~(1<<5);
                            ~~ ^~~~~~~
-project.c(253): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+project.c(244): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
                 *GPIOA_ODR |= (l4<<4);
                            ~~  ~~^~~
-project.c(255): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+project.c(246): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
                 *GPIOA_ODR &= ~(1<<4);
                            ~~ ^~~~~~~
-project.c(277): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
-        *GPIOC_ODR &= ~(1<<0);
-                   ~~ ^~~~~~~
-project.c(280): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
-        *GPIOA_ODR &= ~(15<<4); //0s out D7-D4
-                   ~~ ^~~~~~~~
-project.c(281): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
-        *GPIOA_ODR |= (asc>>4)<<4; //Takes upper 4 bits of asc
-                   ~~ ~~~~~~~~^~~
-project.c(285): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
-        *GPIOA_ODR &= ~(15<<4); //0s out D7-D4
-                   ~~ ^~~~~~~~
-project.c(286): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
-        *GPIOA_ODR |= ((asc & 0xF)<<4); // Takes lower 4 bits of asc
-                   ~~  ~~~~~~~~~~~^~~
-project.c(303): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
-        *GPIOC_ODR &= ~(1<<0|1<<1);
-                   ~~ ^~~~~~~~~~~~
-project.c(306): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
-        *GPIOA_ODR &= ~(15<<4); //0s out D7-D4
-                   ~~ ^~~~~~~~
-project.c(307): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+project.c(297): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
         *GPIOA_ODR |= (addr>>4)<<4; //Takes upper 4 bits of asc
                    ~~ ~~~~~~~~~^~~
-project.c(312): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+project.c(302): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
         *GPIOA_ODR &= ~(15<<4); //0s out D7-D4
                    ~~ ^~~~~~~~
-project.c(313): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+project.c(303): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
         *GPIOA_ODR |= ((addr & 0xF)<<4); // Takes lower 4 bits of asc
                    ~~  ~~~~~~~~~~~~^~~
-project.c(316): warning: no newline at end of file [-Wnewline-eof]
+project.c(311): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+        *GPIOC_ODR &= ~(1<<0|1<<1); //0s out the 2 bits
+                   ~~ ^~~~~~~~~~~~
+project.c(313): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+        *GPIOC_ODR |= (RS & 1) << 1; //PC_1
+                   ~~ ~~~~~~~~~^~~~
+project.c(314): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+        *GPIOC_ODR |= ((R_W & 1)) << 0; //PC_0
+                   ~~ ~~~~~~~~~~~~^~~~
+project.c(315): warning: no newline at end of file [-Wnewline-eof]
 }
  ^
-60 warnings generated.
+46 warnings generated.
 compiling project.c...
 linking...
-Program Size: Code=1924 RO-data=444 RW-data=20 ZI-data=1632  
-".\Objects\Project.axf" - 0 Error(s), 60 Warning(s).
+Program Size: Code=964 RO-data=424 RW-data=20 ZI-data=1632  
+".\Objects\Project.axf" - 0 Error(s), 46 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -282,11 +240,11 @@ Package Vendor: Keil
    * Component: ARM::CMSIS:CORE:5.6.0
 
    * Component: Keil::Device:Startup:1.3.1
+      Source file:   Drivers/CMSIS/Device/ST/STM32L4xx/Source/Templates/arm/startup_stm32l476xx.s
       Include file:  Drivers/CMSIS/Device/ST/STM32L4xx/Include/stm32l4xx.h
       Source file:   MDK/Device/Source/ARM/STM32L4xx_DB_OPT.s
-      Source file:   Drivers/CMSIS/Device/ST/STM32L4xx/Source/Templates/arm/startup_stm32l476xx.s
       Source file:   Drivers/CMSIS/Device/ST/STM32L4xx/Source/Templates/system_stm32l4xx.c
-Build Time Elapsed:  00:00:01
+Build Time Elapsed:  00:00:02
 </pre>
 </body>
 </html>
