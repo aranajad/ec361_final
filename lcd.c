@@ -71,8 +71,8 @@ void GPIO_Init(){
 	// Enable GPIOA peripheral clock
 	*RCC_AHB2ENR |= (1|1<<2); //Turns off GPIOA & GPIOC
 	// Set GPIOA PA9-0 as output
-	*GPIOA_MODER = (*GPIOA_MODER & ~(0xFFFFF)) | 0x5555;
-	*GPIOC_MODER = (*GPIOA_MODER & ~(0xF)) | 0x5;
+	*GPIOA_MODER = (*GPIOA_MODER & ~(0xFFFF)) | 0x5555;
+	*GPIOC_MODER = (*GPIOC_MODER & ~(0xF)) | 0x5;
 }
 
 //Assumes RS is PA_2, R/W Select is PA_1, and d7-d4 are PA_7 to PA_4
