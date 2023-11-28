@@ -23,6 +23,8 @@
 
 volatile unsigned int* GPIOA_MODER =  (unsigned int*) 0x48000000;
 volatile unsigned int* GPIOC_MODER =  (unsigned int*) 0x48000800;
+volatile unsigned int* GPIOC_PUPDR =  (unsigned int*) 0x4800080C;
+volatile unsigned int* GPIOC_IDR =    (unsigned int*) 0x48000810;
 volatile unsigned int* GPIOA_ODR =    (unsigned int*) 0x48000014;
 volatile unsigned int* GPIOC_ODR =    (unsigned int*) 0x48000814;
 volatile unsigned int* RCC_AHB2ENR 	= (unsigned int*) 0x4002104C;
@@ -39,6 +41,7 @@ void LCD_SetAddress(unsigned char);
 void LCD_Display(unsigned char D, unsigned char C, unsigned char B);
 void print_time(unsigned int time);
 void print_mode(int mode);
+void startup();
 
 int main(void){
 	GPIO_Init();
@@ -55,7 +58,11 @@ int main(void){
 	LCD_WriteChar(' ');
 	LCD_WriteStr("Good",4);
 	*/
-	print_mode(1);
+	
+	startup();
+		for(int k = 0; k<2000000;k++){}
+	LCD_Clear();
+	print_mode(0);
 	int secs = 25*60+25;
 	while(1){
 		print_time(secs--);
@@ -71,8 +78,10 @@ void GPIO_Init(){
 	// Enable GPIOA peripheral clock
 	*RCC_AHB2ENR |= (1|1<<2); //Turns off GPIOA & GPIOC
 	// Set GPIOA PA9-0 as output
-	*GPIOA_MODER = (*GPIOA_MODER & ~(0xFFFF)) | 0x5555;
+	*GPIOA_MODER = (*GPIOA_MODER & ~(0xFFFFF)) | 0x5555;
 	*GPIOC_MODER = (*GPIOC_MODER & ~(0xF)) | 0x5;
+	*GPIOC_MODER &= ~(0x3F << 26);
+	*GPIOC_PUPDR |= (0x2A << 26);
 }
 
 //Assumes RS is PA_2, R/W Select is PA_1, and d7-d4 are PA_7 to PA_4
@@ -101,12 +110,11 @@ void LCD_Init(){
 	//*GPIOA_ODR &= ~(1<<6);
 	*GPIOA_ODR |= 1<<7;
 	*GPIOA_ODR |= 1<<6;
-
+	
 	//OPCODE = 00 0010 11XX (4 bits, 2 line, 5x11 font)
 	LCD_Enable();
 	*/
 	LCD_Clear();
-	LCD_ReturnHome();
 /* 
 	//__________Clear the LCD Display_________________________________
 	//OPCODE = 0b 00 0000 0001
@@ -363,7 +371,39 @@ void print_mode(int mode)
 	LCD_SetAddress(0x05);
 	if(mode == 0)
 		LCD_WriteStr("Chill",5);
-
 	else
 		LCD_WriteStr("Focus",5);
+}
+
+void startup()
+{
+	unsigned int addrOpp[3] = {0x42,0x47,0x4F};
+	//Set cursor blinking
+	LCD_SetControlBits(OFF,OFF);
+	*GPIOA_ODR &= ~(0xF << 4);
+	LCD_Enable();
+	//D7-D4 1110
+	*GPIOA_ODR |= (0xD << 4);
+	LCD_Enable();
+	LCD_SetAddress(0x02);
+	LCD_WriteStr("Select  Mode",12);
+	LCD_SetAddress(0x40);
+	LCD_WriteStr("25/5 50/10 Demo ",16);
+	int i = 300;
+	// Left = PC13 Right = PC15 Enter = PC14
+	while(!(*GPIOC_IDR & (1 << 14))){
+		if(*GPIOC_IDR & (1 << 13))
+			i--;
+		if(*GPIOC_IDR & (1 << 15))
+			i++;
+		LCD_SetAddress(addrOpp[i%3]); //42, 47, 4F
+	}
+	//D7-D4 0000
+	LCD_SetControlBits(OFF,OFF);
+	*GPIOA_ODR &= ~(0xF << 4);
+	LCD_Enable();
+	//D7-D4 1100
+	*GPIOA_ODR |= (0xC << 4);
+	LCD_Enable();
+	
 }
