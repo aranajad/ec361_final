@@ -6,7 +6,7 @@ void TIM2_IRQHandler(void);
 
 int main(void){
 	TIM2_Init();
-	while(1){}; //TIM2 Interrupt Handler
+	while(1){} //TIM2 Interrupt Handler
 }
 	
 void TIM2_Init(void)
@@ -62,31 +62,31 @@ void TIM2_Init(void)
 void TIM2_IRQHandler(void)
 {
 	volatile unsigned int*TIM2_SR = (unsigned int*) 0x40000010;
-	static unsigned int tsec = 1800;
+	static unsigned int tsec = 1800; // 30 min
 	static unsigned int sec = 0;
 	static unsigned int min = 0;
 	static unsigned int cycle = 0;
-	int done;
+	static unsigned int done = 0;
 	
-	if (*(TIM2_SR) & 1){ //check for counter update when cnt == arr
+	if ((*(TIM2_SR) & 1) && !done){ //check for counter update when cnt == arr
 		tsec--;	//decrement total seconds from 30 min (1800 sec)
-		sec = tsec%60;
-		min = tsec/60; // calc min/sec
+		sec = tsec%60; // calc sec
+		min = tsec/60; // calc min
 		//update display to show study timer
-		if ((cycle < cyclestudy) && !done){  //number of times cycle should repeat
+		if ((cycle < cyclestudy) && !done){  //number of times cycle should repeat; if number of cycles less than expected number of cycles and not done
 		
-		if (tsec == 300){ //switch to break timer
-			//update display to show break timer
-			}
-		else if (tsec == 0) {
-			cycle++; //update cycle count when timer ends at the end of a cycle
-			tsec = 1800;
-			}
+			if (tsec == 300){ //switch to break timer when 5 min left
+				//update display to show break timer
+				}
+			else if (tsec == 0) { //timer reaches 0 
+				cycle++; //update cycle count when timer ends at the end of a cycle
+				tsec = 1800; //reset to 30 min 
+				}
 		}
-		else if (!done){ //move to long break
-		tsec = 1200;
-		cycle = 0;
-		done = 1;
+		else if ((cycle == cyclestudy) && !done){ //move to long break when expected cycle meets cycles and not done with all cycles
+		tsec = 1200; //20 min break
+		cycle = 0; //reset cycle counter
+		done = 1; // sets "completed all cycles" flag
 		}
 		*TIM2_SR = *TIM2_SR & (~(1 << 0)); //clear bit
 	}
