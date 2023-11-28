@@ -70,11 +70,12 @@ void TIM2_Init(void)
 void TIM2_IRQHandler(void)
 {
 	volatile unsigned int*TIM2_SR = (unsigned int*) 0x40000010;
-	static unsigned int tsec = 30; // 30 min (1800s)
+	static unsigned int tsec = 25; // 25 min (1500s)
 	static unsigned int sec = 0;
 	static unsigned int min = 0;
 	static unsigned int cycle = 0;
 	static unsigned int done = 0;
+	static unsigned int brk = 0;
 	
 	if ((*(TIM2_SR) & 1) && !done){ //check for counter update when cnt == arr
 		tsec--;	//decrement total seconds from 30 min (1800 sec)
@@ -83,12 +84,15 @@ void TIM2_IRQHandler(void)
 		//update display to show study timer
 		if ((cycle < cyclestudy) && !done){  //number of times cycle should repeat; if number of cycles less than expected number of cycles and not done
 		
-			if (tsec == 10){ //switch to break timer when 5 min left (300s)
+			if ((tsec == 0) && !brk){ //switch to break timer when 5 min left (300s)
+				tsec = 5; // initialize break time
+				brk = 1;
 				//update display to show break timer
 				}
-			else if (tsec == 0) { //timer reaches 0 
+			else if ((tsec == 0) && brk) { //timer reaches 0 
+				tsec = 25; //reset to 25 min  (1500s)
 				cycle++; //update cycle count when timer ends at the end of a cycle
-				tsec = 30; //reset to 30 min  (1800s)
+				brk = 0;
 				}
 		}
 		else if ((cycle == cyclestudy) && !done){ //move to long break when expected cycle meets cycles and not done with all cycles
