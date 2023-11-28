@@ -17,6 +17,8 @@ void TIM2_Init(void)
 	volatile unsigned int* TIM2_CR1 = (unsigned int*) 0x40000000;	
 	volatile unsigned int* TIM2_PSC = (unsigned int*) 0x40000028;	
 	volatile unsigned int* TIM2_CNT = (unsigned int*) 0x40000024;	
+	volatile unsigned int* TIM2_DIER = (unsigned int*) 0x4000000C;	
+	volatile unsigned int* NVIC_ISER0 = (unsigned int*) 0xE000E100;	
 	//void PWM_Init(unsigned int duty, unsigned int period)
 	//volatile unsigned int* TIM2_CCR1 = (unsigned int*) 0x40000034;
 	//volatile unsigned int* GPIOB_MODER = (unsigned int*) 0x48000400; //GPIOB, using PB3: Tim2-CH2
@@ -56,13 +58,19 @@ void TIM2_Init(void)
 	//enable up-counting mode: clr tim2_cr1(4) AND enable clock tim2_crl(0);
 	*TIM2_CR1 |= (1 << 0);
 	
+	//Enable capture/compare and update interrupts: TIM2_DIER(1:0) = "11"
+	*TIM2_DIER = 3;
+	
+	//Enable TIM2 interrupts in NVIC: NVIC
+	*NVIC_ISER0 |= (1 << 28);
+	
 	return;
 }
 	
 void TIM2_IRQHandler(void)
 {
 	volatile unsigned int*TIM2_SR = (unsigned int*) 0x40000010;
-	static unsigned int tsec = 1800; // 30 min
+	static unsigned int tsec = 30; // 30 min (1800s)
 	static unsigned int sec = 0;
 	static unsigned int min = 0;
 	static unsigned int cycle = 0;
@@ -75,16 +83,16 @@ void TIM2_IRQHandler(void)
 		//update display to show study timer
 		if ((cycle < cyclestudy) && !done){  //number of times cycle should repeat; if number of cycles less than expected number of cycles and not done
 		
-			if (tsec == 300){ //switch to break timer when 5 min left
+			if (tsec == 10){ //switch to break timer when 5 min left (300s)
 				//update display to show break timer
 				}
 			else if (tsec == 0) { //timer reaches 0 
 				cycle++; //update cycle count when timer ends at the end of a cycle
-				tsec = 1800; //reset to 30 min 
+				tsec = 30; //reset to 30 min  (1800s)
 				}
 		}
 		else if ((cycle == cyclestudy) && !done){ //move to long break when expected cycle meets cycles and not done with all cycles
-		tsec = 1200; //20 min break
+		tsec = 20; //20 min break (1200s)
 		cycle = 0; //reset cycle counter
 		done = 1; // sets "completed all cycles" flag
 		}
