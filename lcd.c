@@ -41,7 +41,7 @@ void LCD_SetAddress(unsigned char);
 void LCD_Display(unsigned char D, unsigned char C, unsigned char B);
 void print_time(unsigned int time);
 void print_mode(int mode);
-void startup();
+int startup();
 
 int main(void){
 	GPIO_Init();
@@ -59,8 +59,7 @@ int main(void){
 	LCD_WriteStr("Good",4);
 	*/
 	
-	startup();
-		for(int k = 0; k<2000000;k++){}
+	int tim_mode = startup();
 	LCD_Clear();
 	print_mode(0);
 	int secs = 25*60+25;
@@ -80,8 +79,8 @@ void GPIO_Init(){
 	// Set GPIOA PA9-0 as output
 	*GPIOA_MODER = (*GPIOA_MODER & ~(0xFFFFF)) | 0x5555;
 	*GPIOC_MODER = (*GPIOC_MODER & ~(0xF)) | 0x5;
-	*GPIOC_MODER &= ~(0x3F << 26);
-	*GPIOC_PUPDR |= (0x2A << 26);
+	*GPIOC_MODER &= ~(0xF3 << 20);
+	*GPIOC_PUPDR |= (0xA2 << 20);
 }
 
 //Assumes RS is PA_2, R/W Select is PA_1, and d7-d4 are PA_7 to PA_4
@@ -374,8 +373,9 @@ void print_mode(int mode)
 	else
 		LCD_WriteStr("Focus",5);
 }
-
-void startup()
+//Returns integer value of selected mode
+// 25/5 == 1    50/10 == 2     Demo == 3
+int startup()
 {
 	unsigned int addrOpp[3] = {0x42,0x47,0x4F};
 	//Set cursor blinking
@@ -390,13 +390,14 @@ void startup()
 	LCD_SetAddress(0x40);
 	LCD_WriteStr("25/5 50/10 Demo ",16);
 	int i = 300;
-	// Left = PC13 Right = PC15 Enter = PC14
-	while(!(*GPIOC_IDR & (1 << 14))){
+	// Left = PC13 Right = PC10 Enter = PC12
+	while(!(*GPIOC_IDR & (1 << 12))){
 		if(*GPIOC_IDR & (1 << 13))
 			i--;
-		if(*GPIOC_IDR & (1 << 15))
+		if(*GPIOC_IDR & (1 << 10))
 			i++;
 		LCD_SetAddress(addrOpp[i%3]); //42, 47, 4F
+		for(int k = 0;k < 200000;k++) {}
 	}
 	//D7-D4 0000
 	LCD_SetControlBits(OFF,OFF);
@@ -405,5 +406,10 @@ void startup()
 	//D7-D4 1100
 	*GPIOA_ODR |= (0xC << 4);
 	LCD_Enable();
-	
+	if(i%3 == 0)
+		return 1;
+	if(i%3 == 1)
+		return 2;
+	else	
+		return 3;
 }
