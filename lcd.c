@@ -367,3 +367,4 @@ void print_mode(int mode)
 	else
 		LCD_WriteStr("Focus",5);
 }
+
