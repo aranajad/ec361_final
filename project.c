@@ -7,6 +7,9 @@
  * 11 - A2 / PA_4 (d4)						12 - D13 / PA_5 (d5)
  * 13 - D12 / PA_6 (d6)						14 - D11 / PA_7 (d7)
  * 15 - Pin 2 (VDO)							16 - Nucleo GND
+ * 
+ * 3 Push Buttons:
+ * LEFT - PC_13			ENTER - PC_14 		RIGHT - PC_15
  */
 
 /* LCD Instruction Set:
@@ -37,20 +40,29 @@ void LCD_WriteChar(unsigned char);
 void LCD_WriteStr(char*, int);
 void LCD_SetAddress(unsigned char);
 void LCD_Display(unsigned char D, unsigned char C, unsigned char B);
+void print_time(unsigned int time);
+void print_mode(int mode);
 
 int main(void){
-	int j = 0;
 	GPIO_Init();
 	LCD_Init();
 	LCD_Clear();
+	/*
+	LCD_WriteStr("    ",4);
+	LCD_WriteStr("Ngo",3);
+	LCD_WriteChar(' ');
+	LCD_WriteStr("Says",4);
+	LCD_SetAddress(0x40);
+	LCD_WriteChar(' ');
+	LCD_WriteStr("Functions",9);
+	LCD_WriteChar(' ');
+	LCD_WriteStr("Good",4);
+	*/
+	print_mode(1);
+	int secs = 25*60+25;
 	while(1){
-		LCD_Init();
-		LCD_WriteChar(0xFF);
-		LCD_WriteChar(0xFF);
-		LCD_WriteChar(0xFF);
-		LCD_WriteChar((unsigned char)(('0'+j)%10));
-		for(int i = 0;i<200000;i++){}
-		LCD_Clear();
+		print_time(secs--);
+		for(int k = 0; k<250000;k++){}
 	}
 }
 
@@ -60,10 +72,10 @@ int main(void){
  */
 void GPIO_Init(){
 	// Enable GPIOA peripheral clock
-	*RCC_AHB2ENR |= (unsigned int)(1|1<<2); //Turns off GPIOA & GPIOC
+	*RCC_AHB2ENR |= (1|1<<2); //Turns off GPIOA & GPIOC
 	// Set GPIOA PA9-0 as output
-	*GPIOA_MODER = (*GPIOA_MODER & ~(0xFFFFF)) | (unsigned int)0x5555;
-	*GPIOC_MODER = (*GPIOA_MODER & ~(0xF)) |(unsigned int) 0x5;
+	*GPIOA_MODER = (*GPIOA_MODER & ~(0xFFFF)) | 0x5555;
+	*GPIOC_MODER = (*GPIOC_MODER & ~(0xF)) | 0x5;
 }
 
 //Assumes RS is PA_2, R/W Select is PA_1, and d7-d4 are PA_7 to PA_4
@@ -74,28 +86,28 @@ void LCD_Init(){
 
 	//***FIRST INSTRUCTION IS 8 BITS
 	LCD_SetControlBits(OFF,OFF);
-
+	/*
 	//D7-D4 = 0010 & D3-D0 = 0000 (Shorted on board) 
-	*GPIOA_ODR &= (unsigned int)~(1<<7|1<<6|1<<4);
-	*GPIOA_ODR |= (unsigned int)1<<5;
+	*GPIOA_ODR &= ~(1<<7|1<<6|1<<4);
+	*GPIOA_ODR |= 1<<5;
 	
 	//OPCODE = 00 0010 0000 (4 bits, 1 line, 5x8 Font)
 	LCD_Enable();
 	
 	//Must send OPCODE 4 bits at a time
 	//D7-D4 = 0010
-	*GPIOA_ODR &= (unsigned int)~(1<<7|1<<6|1<<4);
-	*GPIOA_ODR |= (unsigned int)1<<5;
+	*GPIOA_ODR &= ~(1<<7|1<<6|1<<4);
+	*GPIOA_ODR |= 1<<5;
 	LCD_Enable();
 
 	//D7-D4 = 11XX
 	//*GPIOA_ODR &= ~(1<<6);
-	*GPIOA_ODR |= (unsigned int)1<<7;
-	*GPIOA_ODR |= (unsigned int)1<<6;
+	*GPIOA_ODR |= 1<<7;
+	*GPIOA_ODR |= 1<<6;
 
 	//OPCODE = 00 0010 11XX (4 bits, 2 line, 5x11 font)
 	LCD_Enable();
-
+	*/
 	LCD_Clear();
 	LCD_ReturnHome();
 /* 
@@ -134,11 +146,11 @@ void LCD_Init(){
 	LCD_SetControlBits(OFF, OFF);
 
 	//D7-D4 = 0000
-	*GPIOA_ODR &= (unsigned int)~((1<<7|1<<6|1<<5|1<<4));
+	*GPIOA_ODR &= ~((1<<7|1<<6|1<<5|1<<4));
 	LCD_Enable();
 
 	//D7-D4 = 1100
-	*GPIOA_ODR |= (unsigned int)(1<<7|1<<6);
+	*GPIOA_ODR |= (1<<7|1<<6);
 	LCD_Enable();
 }
 
@@ -147,12 +159,13 @@ void LCD_Enable(){
 	*GPIOA_ODR |= 1; 
 
 	//Busy wait (1mS)
-	for(int i = 0; i < 8003;i++){}
+	for(int i = 0; i < 4003;i++){}
 
 	//Set PA_0 = 0
-	*GPIOA_ODR &= (unsigned int)~1; 
+	*GPIOA_ODR &= ~1; 
 	
 }
+
 
 void LCD_ReturnHome(){
 	//OPCODE = 0b 00 0000 0010
@@ -161,11 +174,11 @@ void LCD_ReturnHome(){
 	LCD_SetControlBits(OFF, OFF);
 
 	//D7-D4 = 0000
-	*GPIOA_ODR &= (unsigned int)~((1<<7|1<<6|1<<5|1<<4));
+	*GPIOA_ODR &= ~((1<<7|1<<6|1<<5|1<<4));
 	LCD_Enable();
 
 	//D7-D4 = 0010
-	*GPIOA_ODR |= (unsigned int)1<<5;
+	*GPIOA_ODR |= 1<<5;
 	LCD_Enable();
 }
 
@@ -177,11 +190,11 @@ void LCD_Clear(){
 	LCD_SetControlBits(OFF, OFF);
 
 	//D7-D4 = 0000
-	*GPIOA_ODR &= (unsigned int)~((1<<7|1<<6|1<<5|1<<4));
+	*GPIOA_ODR &= ~((1<<7|1<<6|1<<5|1<<4));
 	LCD_Enable();
 
 	//D7-D4 = 0001
-	*GPIOA_ODR |= (unsigned int)1<<4;
+	*GPIOA_ODR |= 1<<4;
 	LCD_Enable();
 }
 
@@ -274,13 +287,13 @@ void LCD_WriteChar(unsigned char asc){
 	LCD_SetControlBits(ON,OFF);
 
 	//D7-D4 = d7-d4
-	*GPIOA_ODR &= (unsigned int)~(15<<4); //0s out D7-D4
-	*GPIOA_ODR |= (unsigned int)(asc>>4)<<4; //Takes upper 4 bits of asc
+	*GPIOA_ODR &= ~(15<<4); //0s out D7-D4
+	*GPIOA_ODR |= (asc>>4)<<4; //Takes upper 4 bits of asc
 
 	LCD_Enable();
 
-	*GPIOA_ODR &= (unsigned int)~(15<<4); //0s out D7-D4
-	*GPIOA_ODR |= (unsigned int)((asc & 0xF)<<4); // Takes lower 4 bits of asc
+	*GPIOA_ODR &= ~(15<<4); //0s out D7-D4
+	*GPIOA_ODR |= ((asc & 0xF)<<4); // Takes lower 4 bits of asc
 
 	LCD_Enable();
 }
@@ -300,14 +313,15 @@ void LCD_SetAddress(unsigned char addr){
 	LCD_SetControlBits(OFF,OFF);
 
 	//D7-D4 = d7-d4
-	*GPIOA_ODR &= (unsigned int)~(15<<4); //0s out D7-D4
+	*GPIOA_ODR &= ~(15<<4); //0s out D7-D4
 	*GPIOA_ODR |= (addr>>4)<<4; //Takes upper 4 bits of asc
+	*GPIOA_ODR |= 1<<7; //Sets D7 to 1
 
-	*GPIOA_ODR |= 1<<7; //Sets D7 to 1 (Has to be after addr>>4 or else d7 won't be 1)
 	LCD_Enable();
 
 	*GPIOA_ODR &= ~(15<<4); //0s out D7-D4
 	*GPIOA_ODR |= ((addr & 0xF)<<4); // Takes lower 4 bits of asc
+
 	LCD_Enable();
 }
 /* Sets the control bits RS and R_W
@@ -319,4 +333,40 @@ void LCD_SetControlBits(unsigned char RS, unsigned char R_W){
 
 	*GPIOC_ODR |= (RS & 1) << 1; //PC_1
 	*GPIOC_ODR |= ((R_W & 1)) << 0; //PC_0
+}
+
+//Takes in timer total in seconds
+void print_time(unsigned int time)
+{
+	int min, sec;
+	//Divide seconds by 60 to get minutes
+	min = time / 60;
+	//Mod seconds by 60 to get sec
+	sec = time % 60;
+	//Set cursor in *timer* position
+	LCD_SetAddress(0x45);
+	//Print minutes
+	//tens place
+	LCD_WriteChar((min/10)+48);
+	//ones place
+	LCD_WriteChar((min%10)+48);
+	//colon
+	LCD_WriteChar(':');
+	//Print seconds
+	//tens place
+	LCD_WriteChar((sec/10)+48);
+	//ones place
+	LCD_WriteChar((sec%10)+48);
+	
+}
+//0 is chill
+//1 is focus
+void print_mode(int mode)
+{
+	LCD_SetAddress(0x05);
+	if(mode == 0)
+		LCD_WriteStr("Chill",5);
+
+	else
+		LCD_WriteStr("Focus",5);
 }
