@@ -3,20 +3,25 @@
 
 void TIM2_Init(void);
 void TIM2_IRQHandler(void);
+static unsigned int mode = 1;
+static unsigned int start = 0;
 
 int main(void){
 	TIM2_Init();
 	while(1){} //TIM2 Interrupt Handler
-}
+	}
 	
-void TIM2_Init(void)
-{
+void TIM2_Init(void)	
+		{
+	
 	volatile unsigned int* RCC_AHB2ENR = (unsigned int*) 0x4002104C;
 	volatile unsigned int* RCC_APB1ENR1 = (unsigned int*) 0x40021058;
 	volatile unsigned int* TIM2_ARR = (unsigned int*) 0x4000002C;
 	volatile unsigned int* TIM2_CR1 = (unsigned int*) 0x40000000;	
 	volatile unsigned int* TIM2_PSC = (unsigned int*) 0x40000028;	
 	volatile unsigned int* TIM2_CNT = (unsigned int*) 0x40000024;	
+	volatile unsigned int* TIM2_DIER = (unsigned int*) 0x4000000C;	
+	volatile unsigned int* NVIC_ISER0 = (unsigned int*) 0xE000E100;	
 	//void PWM_Init(unsigned int duty, unsigned int period)
 	//volatile unsigned int* TIM2_CCR1 = (unsigned int*) 0x40000034;
 	//volatile unsigned int* GPIOB_MODER = (unsigned int*) 0x48000400; //GPIOB, using PB3: Tim2-CH2
@@ -56,40 +61,90 @@ void TIM2_Init(void)
 	//enable up-counting mode: clr tim2_cr1(4) AND enable clock tim2_crl(0);
 	*TIM2_CR1 |= (1 << 0);
 	
+	//Enable capture/compare and update interrupts: TIM2_DIER(1:0) = "11"
+	*TIM2_DIER = 3;
+	
+	//Enable TIM2 interrupts in NVIC: NVIC
+	*NVIC_ISER0 |= (1 << 28);
+	
 	return;
 }
 	
-void TIM2_IRQHandler(void)
+void TIM2_IRQHandler()
 {
-	volatile unsigned int*TIM2_SR = (unsigned int*) 0x40000010;
-	static unsigned int tsec = 1800; // 30 min
-	static unsigned int sec = 0;
-	static unsigned int min = 0;
-	static unsigned int cycle = 0;
-	static unsigned int done = 0;
-	
-	if ((*(TIM2_SR) & 1) && !done){ //check for counter update when cnt == arr
-		tsec--;	//decrement total seconds from 30 min (1800 sec)
-		sec = tsec%60; // calc sec
-		min = tsec/60; // calc min
-		//update display to show study timer
-		if ((cycle < cyclestudy) && !done){  //number of times cycle should repeat; if number of cycles less than expected number of cycles and not done
+		volatile unsigned int*TIM2_SR = (unsigned int*) 0x40000010;
+		static unsigned int tsec; // 25 min (1500s)
+		static unsigned int sec;
+		static unsigned int min;
+		static unsigned int cycle;
+		static unsigned int done = 0;
+		static unsigned int brk = 0;
 		
-			if (tsec == 300){ //switch to break timer when 5 min left
-				//update display to show break timer
-				}
-			else if (tsec == 0) { //timer reaches 0 
-				cycle++; //update cycle count when timer ends at the end of a cycle
-				tsec = 1800; //reset to 30 min 
-				}
+		//deal with start refresh**
+		if(!start)  {
+			if (mode = 1){ 
+				tsec = 1500;
+			}
+			else if (mode = 2) {
+				tsec = 3000;
+			}
+			else if (mode = 3){
+				tsec = 25;
+			}
+			start = 1; //set start flag so tsec is not initiated again
 		}
-		else if ((cycle == cyclestudy) && !done){ //move to long break when expected cycle meets cycles and not done with all cycles
-		tsec = 1200; //20 min break
-		cycle = 0; //reset cycle counter
-		done = 1; // sets "completed all cycles" flag
+			
+		if ((*(TIM2_SR) & 1) && !done){ //check for counter update when cnt == arr //flip done and have everything else in else**
+			tsec--;	//decrement total seconds 
+			sec = tsec%60; // calc sec
+			min = tsec/60; // calc min
+			
+			if ((cycle < cyclestudy) && !done){  //number of times cycle should repeat; if number of cycles less than expected number of cycles and not done
+			
+				if ((tsec == 0) && !brk){ //switch to break timer when 5 min left (300s)
+					if (mode == 1){
+						tsec = 300; // initialize break time 5 min for mode 1
+						
+					}
+					else if(mode == 2){
+						tsec = 600; // initialize break time 10 min for mode 2
+					}				
+					else if (mode == 3){ 
+					tsec = 5; // initialize break time 5 sec for mode 3 demo
+					}	
+					brk = 1;
+				}
+				// WHEN BREAK IS FINISHED*				
+				else if ((tsec == 0) && brk) { //timer reaches 0 
+					if (mode == 1){
+						tsec = 1500; // initialize study time 5 min for mode 1
+					}
+					else if(mode == 2){
+						tsec = 3000; // initialize study time 10 min for mode 2
+					}				
+					else if (mode == 3){ 
+					tsec = 25; // initialize study time 5 sec for mode 3 demo
+					}
+					cycle++; //update cycle count when timer ends at the end of a cycle
+					brk = 0;
+					}
+			}
+			else if ((cycle == cyclestudy) && !done){ //move to long break when expected cycle meets cycles and not done with all cycles
+				if (mode == 1){
+					tsec = 1200; //20 min break (1200s) for mode 1
+				}
+				else if (mode == 2){
+					tsec = 2400; //40 min break (2400s) for mode 2
+				}
+				else if (mode == 3){
+					tsec = 20; //20 sec break for mode 3 demo
+				}
+			cycle = 0; //reset cycle counter
+			done = 1; // sets "completed all cycles" flag
+			start = 0; //reset start flag
+			}
+			//update display to show study timer
+			*TIM2_SR = *TIM2_SR & (~(1 << 0)); //clear bit
 		}
-		*TIM2_SR = *TIM2_SR & (~(1 << 0)); //clear bit
-	}
-	return;
+		return;
 }
-
