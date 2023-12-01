@@ -4,7 +4,7 @@
 void TIM2_Init(void);
 void TIM2_IRQHandler(void);
 static unsigned int mode = 3;
-static unsigned int start = 0;
+
 
 int main(void){
 	TIM2_Init();
@@ -79,6 +79,7 @@ void TIM2_IRQHandler()
 		static unsigned int cycle;
 		static unsigned int done = 0;
 		static unsigned int brk = 0;
+		static unsigned int start = 0;
 		
 		//deal with start refresh**
 		if(!start)  {
