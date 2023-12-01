@@ -3,7 +3,7 @@
 
 void TIM2_Init(void);
 void TIM2_IRQHandler(void);
-static unsigned int mode = 1;
+static unsigned int mode = 3;
 static unsigned int start = 0;
 
 int main(void){
@@ -82,13 +82,13 @@ void TIM2_IRQHandler()
 		
 		//deal with start refresh**
 		if(!start)  {
-			if (mode = 1){ 
+			if (mode == 1){ 
 				tsec = 1500;
 			}
-			else if (mode = 2) {
+			else if (mode == 2) {
 				tsec = 3000;
 			}
-			else if (mode = 3){
+			else if (mode == 3){
 				tsec = 25;
 			}
 			start = 1; //set start flag so tsec is not initiated again
