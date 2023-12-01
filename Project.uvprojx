@@ -385,9 +385,14 @@
           <GroupName>Source Group 1</GroupName>
           <Files>
             <File>
-              <FileName>project.c</FileName>
+              <FileName>lcd.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\project.c</FilePath>
+              <FilePath>.\lcd.c</FilePath>
+            </File>
+            <File>
+              <FileName>merge.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\merge.c</FilePath>
             </File>
           </Files>
         </Group>

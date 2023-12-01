@@ -18,8 +18,7 @@
  */
 #define ON (unsigned char) 1
 #define OFF (unsigned char) 0
-//unsigned char on = 1;
-//unsigned char off = 0;
+//#define DEBUG 1 //Uncommend if running lcd.c as its own file. Comment when including in another file
 
 volatile unsigned int* GPIOA_MODER =  (unsigned int*) 0x48000000;
 volatile unsigned int* GPIOC_MODER =  (unsigned int*) 0x48000800;
@@ -27,7 +26,7 @@ volatile unsigned int* GPIOC_PUPDR =  (unsigned int*) 0x4800080C;
 volatile unsigned int* GPIOC_IDR =    (unsigned int*) 0x48000810;
 volatile unsigned int* GPIOA_ODR =    (unsigned int*) 0x48000014;
 volatile unsigned int* GPIOC_ODR =    (unsigned int*) 0x48000814;
-volatile unsigned int* RCC_AHB2ENR 	= (unsigned int*) 0x4002104C;
+volatile unsigned int *RCC_AHB2ENR = (unsigned int *) 0x4002104C;
 void GPIO_Init();
 void LCD_SetControlBits(unsigned char, unsigned char);
 void LCD_Enable();
@@ -41,8 +40,9 @@ void LCD_SetAddress(unsigned char);
 void LCD_Display(unsigned char D, unsigned char C, unsigned char B);
 void print_time(unsigned int time);
 void print_mode(int mode);
-int startup();
+int setMode();
 
+#ifdef DEBUG
 int main(void){
 	GPIO_Init();
 	LCD_Init();
@@ -59,7 +59,7 @@ int main(void){
 	LCD_WriteStr("Good",4);
 	*/
 	
-	int tim_mode = startup();
+	int tim_mode = setMode();
 	LCD_Clear();
 	print_mode(0);
 	int secs = 25*60+25;
@@ -68,17 +68,20 @@ int main(void){
 		for(int k = 0; k<250000;k++){}
 	}
 }
+#endif
 
 /* Enables Pins 0 - 16 as O/P
  * Control Sgnals for the LCD are PC_1, PC_0, PA_0 (RS, R/W, ENABLE)
  * D7-D4 are PA_7-PA_4
+ * 8 bit/4bit switch is PC_7
  */
 void GPIO_Init(){
-	// Enable GPIOA peripheral clock
+	// Enable GPIOA and GPIOC peripheral clock
 	*RCC_AHB2ENR |= (1|1<<2); //Turns off GPIOA & GPIOC
 	// Set GPIOA PA9-0 as output
 	*GPIOA_MODER = (*GPIOA_MODER & ~(0xFFFFF)) | 0x5555;
-	*GPIOC_MODER = (*GPIOC_MODER & ~(0xF)) | 0x5;
+	*GPIOC_MODER = (*GPIOC_MODER & ~(0xF)) | 0x5; //0101 (PC_0 and PC_1 as O/P)
+	*GPIOC_MODER &= ~(0b11<<14); //PC_7 as input
 	*GPIOC_MODER &= ~(0xF3 << 20);
 	*GPIOC_PUPDR |= (0xA2 << 20);
 }
@@ -91,7 +94,7 @@ void LCD_Init(){
 
 	//***FIRST INSTRUCTION IS 8 BITS
 	LCD_SetControlBits(OFF,OFF);
-	/*
+	if(GPIOC_IDR && (1<<7)){
 	//D7-D4 = 0010 & D3-D0 = 0000 (Shorted on board) 
 	*GPIOA_ODR &= ~(1<<7|1<<6|1<<4);
 	*GPIOA_ODR |= 1<<5;
@@ -112,7 +115,7 @@ void LCD_Init(){
 	
 	//OPCODE = 00 0010 11XX (4 bits, 2 line, 5x11 font)
 	LCD_Enable();
-	*/
+	}
 	LCD_Clear();
 /* 
 	//__________Clear the LCD Display_________________________________
@@ -375,9 +378,9 @@ void print_mode(int mode)
 }
 //Returns integer value of selected mode
 // 25/5 == 1    50/10 == 2     Demo == 3
-int startup()
+int setMode()
 {
-	unsigned int addrOpp[3] = {0x42,0x47,0x4F};
+	unsigned static int addrOpp[3] = {0x42,0x47,0x4F};
 	//Set cursor blinking
 	LCD_SetControlBits(OFF,OFF);
 	*GPIOA_ODR &= ~(0xF << 4);
@@ -390,6 +393,8 @@ int startup()
 	LCD_SetAddress(0x40);
 	LCD_WriteStr("25/5 50/10 Demo ",16);
 	int i = 300;
+	
+	//POLL BUTTONS FOR OPTION SELECT
 	// Left = PC13 Right = PC10 Enter = PC12
 	while(!(*GPIOC_IDR & (1 << 12))){
 		if(*GPIOC_IDR & (1 << 13))
@@ -406,10 +411,13 @@ int startup()
 	//D7-D4 1100
 	*GPIOA_ODR |= (0xC << 4);
 	LCD_Enable();
+	return (i%3)+1; //same logic as code below
+	/* 
 	if(i%3 == 0)
 		return 1;
 	if(i%3 == 1)
 		return 2;
 	else	
-		return 3;
+		return 3; 
+	*/
 }

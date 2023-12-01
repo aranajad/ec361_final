@@ -1,15 +1,18 @@
 #define period 3999999
 #define cyclestudy 4
+//#define debug 1
 
 void TIM2_Init(void);
 void TIM2_IRQHandler(void);
 static unsigned int mode = 1;
 static unsigned int start = 0;
 
+#ifdef debug
 int main(void){
 	TIM2_Init();
 	while(1){} //TIM2 Interrupt Handler
 	}
+#endif
 	
 void TIM2_Init(void)	
 		{
