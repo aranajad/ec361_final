@@ -3,6 +3,19 @@
 #define ON (unsigned char) 1
 #define OFF (unsigned char) 0
 
+//tones = {261, 277, 294, 311, 330, 349, 370, 392, 415, 440} for {C, C#,D,D#,E,F,F#,G,G#,A}
+#define C (unsigned char) 261
+#define sharpC (unsigned char) 277
+#define D (unsigned char) 294
+#define sharpD (unsigned char) 311
+#define E (unsigned char) 330
+#define F (unsigned char) 349
+#define sharpF (unsigned char) 370
+#define G (unsigned char) 392
+#define sharpG (unsigned char) 415
+#define A (unsigned char) 440
+//tones = {261, 277, 294, 311, 330, 349, 370, 392, 415, 440} for {C, C#,D,D#,E,F,F#,G,G#,A}
+
 void TIM2_Init(void);
 void TIM3_Init(void);
 void TIM2_IRQHandler(void);
@@ -17,26 +30,44 @@ extern void LCD_WriteBits(int, int,int,int,int,int,int,int);
 extern void LCD_WriteChar(unsigned char);
 extern void LCD_WriteStr(char*, int);
 extern void LCD_SetAddress(unsigned char);
-extern void LCD_Display(unsigned char D, unsigned char C, unsigned char B);
 extern void print_time(unsigned int time);
 extern void print_mode(int mode);
 extern int setMode();
-void playBuzzer();
+void playBuzzer(unsigned int freq, unsigned char on_off);
+void playTune(unsigned int f);
 static unsigned int mode = 1;
 static unsigned int start = 0;
+static unsigned int paused = 0;
 
 int main(void){
     GPIO_Init();
     LCD_Init();
-    mode = setMode();
+	//TIM3_Init();
+	mode = setMode();
+/* 
+	print_mode(0);
+	playTune(C);
+	playTune(sharpC);
+	playTune(D);
+	playTune(sharpD);
+	playTune(E);
+	playTune(F);
+	playTune(sharpF);
+	playTune(G);
+	playTune(sharpG);
+	playTune(A);
+	while(1){}
+ */
 	TIM2_Init();
     LCD_Clear();
-	while(1){} 
+	while(1){
+		if (paused){
+			mode = setMode();
+		}
+	}
 	}
 	
-void TIM2_Init(void)	
-		{
-	
+void TIM2_Init(void){
 	volatile unsigned int* RCC_AHB2ENR = (unsigned int*) 0x4002104C;
 	volatile unsigned int* RCC_APB1ENR1 = (unsigned int*) 0x40021058;
 	volatile unsigned int* TIM2_ARR = (unsigned int*) 0x4000002C;
@@ -115,10 +146,11 @@ void TIM2_IRQHandler()
 				tsec = 25;
 			}
 			start = 1; //set start flag so tsec is not initiated again
+			paused = 0;
 		}
 		if(!done){	
 			if ((*(TIM2_SR) & 1)){ //check for counter update when cnt == arr //flip done and have everything else in else**
-				tsec--;	//decrement total seconds 
+	
 				sec = tsec%60; // calc sec
 				min = tsec/60; // calc min
 				
@@ -136,6 +168,8 @@ void TIM2_IRQHandler()
 						}	
 						brk = 1;
                         // we need to turn of TIM2 so TIM2 doesnt instant start the count TIM2_Enable(OFF);
+						//TIM2_Enable(OFF);
+						//playTune(F);
 					}
 					// WHEN BREAK IS FINISHED*				
 					else if ((tsec == 0) && brk) { //timer reaches 0 and we are taking a break
@@ -150,8 +184,10 @@ void TIM2_IRQHandler()
 						}
 						cycle++; //update cycle count when timer ends at the end of a cycle
 						brk = 0;
+						//TIM2_Enable(OFF);
+						//playTune(F);
 						}
-                    print_mode(!brk);
+					print_mode(!brk);
 				}
 				else if ((cycle == cyclestudy)){ //move to long break when expected cycle meets cycles and not done with all cycles
 					if (mode == 1){
@@ -178,71 +214,39 @@ void TIM2_IRQHandler()
 /* Passing ON (1) -> TIM2 is Enabled
  * Passing OFF (0) -> TIM2 is Disabled
  */
-void TIM2_Enable(unsigned char a){
+void TIM2_Enable(unsigned char on_off){
 	volatile unsigned int* TIM2_CR1 = (unsigned int*) 0x40000000;	
-    if(a){
-        *TIM2_CR1 |= (a <<0);
+    if(on_off){
+        *TIM2_CR1 |= (on_off <<0);
     } else{
-        *TIM2_CR1 &= (a << 0);
+        *TIM2_CR1 &= (on_off << 0);
     }
 }
 
 /* Generates are square wave (50% duty cycle PWM) on TIM3 Channel 2 (PWM3/2)
  * PWM3/2 maps to D4 (PB_5)
  * Attached to a buzzer on the board. Frequency of square wave determines pitch of buzzer
+ * Desired frequency can range from 60Hz to 4MHz (w/ PSC = 0)
+ * tones = {261, 277, 294, 311, 330, 349, 370, 392, 415, 440} for {C,C#,D,D#,E,F,F#,G,G#,A}
+ * C - 261
+ * sharpC - 277 
+ * D - 294
+ * sharpD - 311
+ * E - 330
+ * F - 349
+ * sharpF - 370
+ * G - 392
+ * sharpG - 415
+ * A - 440
  */
-void playBuzzer(){
-}
-
-void TIM3_Init(unsigned int desired_freq){
-	
-	volatile unsigned int* RCC_AHB2ENR = (unsigned int*) 0x4002104C;
-	volatile unsigned int* RCC_APB1ENR1 = (unsigned int*) 0x40021058;
-	volatile unsigned int* TIM3_ARR = (unsigned int*) 0x4000042C;
-	volatile unsigned int* TIM3_CR1 = (unsigned int*) 0x40000400;	
-	volatile unsigned int* TIM3_PSC = (unsigned int*) 0x40000428;	
-	volatile unsigned int* TIM3_CNT = (unsigned int*) 0x40000424;	
-	//void PWM_Init(unsigned int duty, unsigned int period)
-	volatile unsigned int* TIM3_CCR1 = (unsigned int*) 0x40000434;
-	volatile unsigned int* GPIOB_MODER = (unsigned int*) 0x48000400; //GPIOB, using PB3: Tim2-CH2
-	volatile unsigned int* GPIOB_AFRL = (unsigned int*) 0x48000420;		//AF1; dont worry using this, for pwm	
-	volatile unsigned int* TIM3_CCMR1 = (unsigned int*) 0x40000418;
-	volatile unsigned int* TIM3_CCER = (unsigned int*) 0x40000420;	//same with all these above
-	
-	// Enable GPIOB peripheral clock
-	*RCC_AHB2ENR |= (0x01);
-	
-	//***********
-	// Configure PB_5 to alt. function mode
-	*GPIOB_MODER &= ~(0b11 << 10); //Zero out MODE5
-	*GPIOB_MODER |=  (0b10 << 10); //Mode 5 = 10 (Alt Func Mode)
-
-	*GPIOB_AFRL &= ~(0b0010 << 20); //Zero AFSEL5 (AF2 = TIM3/2)
-	*GPIOB_AFRL |=  (0b0010 << 20); //Set AFSEL5 to 0010 (AF2 = TIM3/2)
-
-	//Enable OC1PE bit
-	*TIM3_CCMR1 |= (1<<3);
-
-	//Set ARR to upcounting via ARPE in TIM2_CR1
-	*TIM3_CR1 |= (1<<7);
-
-	//Generate PWM via CMS bits in TIM2_CR1
-	*TIM3_CR1 &= ~(1<<6 | 1<<5);
-
-	//1 for Upcount & 0 for downcount (DIR bit)
-	*TIM3_CR1 &= ~(1<<4); 
-
-	//Set OC1 Polarity w/ CC1P bit
-	*TIM3_CCER &= ~(1<<1);
-
-	// Enable TIM3 peripheral clock
-	*RCC_APB1ENR1 |= 1<<1;
-
-	//set PSC if needed (0 by default)
-	*TIM3_PSC = 0;
-
+void playBuzzer(unsigned int desired_freq, unsigned char on_off){
 	unsigned int calcARR = (unsigned int) ((4e6)/desired_freq)-1;
 	unsigned int calcDuty = (unsigned int)calcARR / 2;
+	volatile unsigned int* TIM3_ARR = (unsigned int*) 0x4000042C;
+	volatile unsigned int* TIM3_CCR1 = (unsigned int*) 0x40000434;
+	volatile unsigned int* TIM3_CCER = (unsigned int*) 0x40000420;	//same with all these above
+
+	*TIM3_CCER &= ~(1<<4); //Sets CC2E (Capture/Computer 2 Enable) to 0 (to change TIM3 settings)
 
 	//EQN for determining ARR
 	//ARR = (CLK_Freq/Desire_Freq) - 1
@@ -252,23 +256,96 @@ void TIM3_Init(unsigned int desired_freq){
 
 	// Set duty cycle
 	*TIM3_CCR1 = calcDuty;
-	
-	//CCMR1 stuff goes above CCER stuff
 
 	//Enable output for channel 2
-	*TIM3_CCER |= 1<<4; //Sets CC2E (Capture/Computer 2 Enable) to 1
+	*TIM3_CCER &= ~(1<<4); //Sets CC2E (Capture/Compare 2 Enable) to 0
+	*TIM3_CCER |= on_off<<4; //Sets CC2E (Capture/Compare 2 Enable) to 1
+}
 
-//*****************************************UNFINISHED*********************************************
-//Still need to up the code for everything below this to work properly
+void TIM3_Init(){
 	
-	//***********************MAKE SURE YOU ENABLE OUTPUT FOR CHANNEL 2 NOT 1.
-	// Select PWM mode 1 on channel 1 (OC1)
-	//*TIM3_CCMR1 &= ~(1 << 16);
-	//*TIM3_CCMR1 = (*TIM2_CCMR1 | (3 << 5)) & ~(1 << 4 ); FOR PWM NOT NEEDED
+	volatile unsigned int* RCC_AHB2ENR = (unsigned int*) 0x4002104C;
+	volatile unsigned int* RCC_APB1ENR1 = (unsigned int*) 0x40021058;
+	volatile unsigned int* TIM3_ARR = (unsigned int*) 0x4000042C; //
+	volatile unsigned int* TIM3_CR1 = (unsigned int*) 0x40000400;	//GOod
+	volatile unsigned int* TIM3_PSC = (unsigned int*) 0x40000428;	//
+	volatile unsigned int* TIM3_CNT = (unsigned int*) 0x40000424;	//
+	//void PWM_Init(unsigned int duty, unsigned int period)
+	volatile unsigned int* TIM3_CCR2 = (unsigned int*) 0x40000438;
+	volatile unsigned int* GPIOB_MODER = (unsigned int*) 0x48000400; //GPIOB, using PB5: Tim3-CH2
+	volatile unsigned int* GPIOB_AFRL = (unsigned int*) 0x48000420;		//AF2;
+	volatile unsigned int* TIM3_CCMR1 = (unsigned int*) 0x40000418;
+	volatile unsigned int* TIM3_CCER = (unsigned int*) 0x40000420;	//same with all these above
+	
+	// Enable GPIOB peripheral clock
+	*RCC_AHB2ENR |= (1<<1);
+
+	// Enable TIM3 peripheral clock
+	*RCC_APB1ENR1 |= 1<<1;
+	
+	//***********
+	// Configure PB_5 to alt. function mode
+	*GPIOB_MODER &= ~(0b11 << 10); //Zero out MODE5
+	*GPIOB_MODER |=  (0b10 << 10); //Mode 5 = 10 (Alt Func Mode)
+
+	*GPIOB_AFRL &= ~(0b1111 << 20); //Zero AFSEL5 (AF2 = TIM3/2)
+	*GPIOB_AFRL |=  (0b0010 << 20); //Set AFSEL5 to 0010 (AF2 = TIM3/2)
+
+	//Enable OC2PE bit
+	*TIM3_CCMR1 |= (1<<11);
+
+	//Set ARR to upcounting via ARPE in TIM3_CR1
+	*TIM3_CR1 |= (1<<7);
+
+	//Generate PWM via CMS bits in TIM3_CR1
+	*TIM3_CR1 &= ~(1<<6 | 1<<5);
+
+	//1 for Upcount & 0 for downcount (DIR bit)
+	//*TIM3_CR1 &= ~(1<<4);  //Upcount
+	*TIM3_CR1 |= (1<<4); //Downcount
+
+	//Set OC2 Polarity w/ CC2P bit
+	*TIM3_CCER &= ~(1<<5);
 
 
+	//set PSC if needed (0 by default)
+	*TIM3_PSC = 0;
+
+	//EQN for determining ARR
+	//ARR = (CLK_Freq/Desire_Freq) - 1
+	//ARR = (4e6/Desired_Freq)-1
+	//TIM3_ARR = (unsigned int) ((4e6)/[something])- 1; //261 is a Middle C
+	*TIM3_ARR |= 15000;
+
+	// Set duty cycle
+	*TIM3_CCR2 |= 15000/2;
+	
+	// Select PWM mode 1 on channel 2 (OC2M = 0110)
+	*TIM3_CCMR1 &= ~(1 << 24);
+	*TIM3_CCMR1 &= ~(0b111 <<12);
+	*TIM3_CCMR1 |= (0b110 <<12);
+
+	//*TIM3_CCER |= 1<<4;
 	//enable up-counting mode: clr tim2_cr1(4) AND enable clock tim2_crl(0);
 	*TIM3_CR1 |= (1 << 0);
-	
 	return;
+}
+
+/*tones = {261, 277, 294, 311, 330, 349, 370, 392, 415, 440} for {C,C#,D,D#,E,F,F#,G,G#,A}
+ * C - 261
+ * sharpC - 277 
+ * D - 294
+ * sharpD - 311
+ * E - 330
+ * F - 349
+ * sharpF - 370
+ * G - 392
+ * sharpG - 415
+ * A - 440
+ */
+void playTune(unsigned int freq){
+	playBuzzer(freq,ON);
+	for(int i = 0; i < 2e4;i++){
+	}
+	playBuzzer(freq,OFF);
 }

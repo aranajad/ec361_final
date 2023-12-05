@@ -94,6 +94,8 @@ void LCD_Init(){
 
 	//***FIRST INSTRUCTION IS 8 BITS
 	LCD_SetControlBits(OFF,OFF);
+	
+	//If switch = 1 then run this code other wise ignore
 	if(GPIOC_IDR && (1<<7)){
 	//D7-D4 = 0010 & D3-D0 = 0000 (Shorted on board) 
 	*GPIOA_ODR &= ~(1<<7|1<<6|1<<4);
@@ -166,7 +168,7 @@ void LCD_Enable(){
 	*GPIOA_ODR |= 1; 
 
 	//Busy wait (1mS)
-	for(int i = 0; i < 4003;i++){}
+	for(int i = 0; i < 3003;i++){}
 
 	//Set PA_0 = 0
 	*GPIOA_ODR &= ~1; 
