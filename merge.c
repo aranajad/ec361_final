@@ -202,14 +202,12 @@ void TIM3_Init(unsigned int desired_freq){
 	volatile unsigned int* TIM3_CR1 = (unsigned int*) 0x40000400;	
 	volatile unsigned int* TIM3_PSC = (unsigned int*) 0x40000428;	
 	volatile unsigned int* TIM3_CNT = (unsigned int*) 0x40000424;	
-	volatile unsigned int* TIM3_DIER = (unsigned int*) 0x4000040C;	
-	volatile unsigned int* NVIC_ISER0 = (unsigned int*) 0xE000E100;	
 	//void PWM_Init(unsigned int duty, unsigned int period)
 	volatile unsigned int* TIM3_CCR1 = (unsigned int*) 0x40000434;
 	volatile unsigned int* GPIOB_MODER = (unsigned int*) 0x48000400; //GPIOB, using PB3: Tim2-CH2
 	volatile unsigned int* GPIOB_AFRL = (unsigned int*) 0x48000420;		//AF1; dont worry using this, for pwm	
 	volatile unsigned int* TIM3_CCMR1 = (unsigned int*) 0x40000418;
-	volatile unsigned int* TIM3_CCER = (unsigned int*) 0x40000420;	same with all these above
+	volatile unsigned int* TIM3_CCER = (unsigned int*) 0x40000420;	//same with all these above
 	
 	// Enable GPIOB peripheral clock
 	*RCC_AHB2ENR |= (0x01);
@@ -271,12 +269,6 @@ void TIM3_Init(unsigned int desired_freq){
 
 	//enable up-counting mode: clr tim2_cr1(4) AND enable clock tim2_crl(0);
 	*TIM3_CR1 |= (1 << 0);
-	
-	//Enable capture/compare and update interrupts: TIM2_DIER(1:0) = "11"
-	*TIM3_DIER = 3;
-	
-	//Enable TIM2 interrupts in NVIC: NVIC
-	*NVIC_ISER0 |= (1 << 28);
 	
 	return;
 }
