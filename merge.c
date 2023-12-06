@@ -150,7 +150,7 @@ void TIM2_IRQHandler(){
 			tsec = 3000;
 		}
 		else if (mode == 3){
-			tsec = 25;
+			tsec = 10;
 		}
 		start = 1; // set start flag so tsec is not initiated again
 		paused = 0;
@@ -186,7 +186,7 @@ void TIM2_IRQHandler(){
 						tsec = 3000; // initialize study time 10 min for mode 2
 					}
 					else if (mode == 3){
-						tsec = 25; // initialize study time 5 sec for mode 3 demo
+						tsec = 10; // initialize study time 5 sec for mode 3 demo
 					}
 					cycle++; // update cycle count when timer ends at the end of a cycle
 					brk = 0;
@@ -195,6 +195,7 @@ void TIM2_IRQHandler(){
 				}
 				print_mode(!brk);
 			}
+			//**************REVISIT*****************done = 1 so long break will not decrement
 			else if ((cycle == cyclestudy)){ // move to long break when expected cycle meets cycles and not done with all cycles
 				if (mode == 1){
 					tsec = 1200; // 20 min break (1200s) for mode 1
@@ -206,7 +207,7 @@ void TIM2_IRQHandler(){
 					tsec = 20; // 20 sec break for mode 3 demo
 				}
 				cycle = 0; // reset cycle counter
-				done = 1;  // sets "completed all cycles" flag
+				done = 1;  // sets "completed all cycles" flag //THIS BREAKS THE LOGIC
 				start = 0; // reset start flag
 			}
 			// update display to show study timer
