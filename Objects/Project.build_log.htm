@@ -27,118 +27,130 @@ Project File Date:  12/01/2023
 <h2>Output:</h2>
 *** Using Compiler 'V6.19', folder: 'C:\Keil_v5\ARM\ARMCLANG\Bin'
 Build target 'Target 1'
-merge.c(23): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
+merge.c(19): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
 extern void GPIO_Init();
                      ^
                       void
-merge.c(25): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
+merge.c(21): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
 extern void LCD_Enable();
                       ^
                        void
-merge.c(26): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
+merge.c(22): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
 extern void LCD_Init();
                     ^
                      void
-merge.c(27): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
+merge.c(23): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
 extern void LCD_Clear();
                      ^
                       void
-merge.c(28): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
+merge.c(24): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
 extern void LCD_ReturnHome();
                           ^
                            void
-merge.c(35): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
+merge.c(31): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
 extern int setMode();
                   ^
                    void
-merge.c(46): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+merge.c(35): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
+void pauseButton();
+                ^
+                 void
+merge.c(48): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
         mode = setMode();
              ~ ^~~~~~~~~
-merge.c(65): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
-                        mode = setMode();
-                             ~ ^~~~~~~~~
-merge.c(76): warning: unused variable 'TIM2_CNT' [-Wunused-variable]
-        volatile unsigned int* TIM2_CNT = (unsigned int*) 0x40000024;   
+merge.c(84): warning: unused variable 'TIM2_CNT' [-Wunused-variable]
+        volatile unsigned int *TIM2_CNT = (unsigned int *)0x40000024;
                                ^
-merge.c(127): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
-void TIM2_IRQHandler()
+merge.c(135): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
+void TIM2_IRQHandler(){
                     ^
                      void
-merge.c(208): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
-                                *TIM2_SR = *TIM2_SR & (~(1 << 0)); //clear bit (Acknowledge the interrupt flag)
-                                                    ~  ^~~~~~~~~
-merge.c(131): warning: variable 'sec' set but not used [-Wunused-but-set-variable]
-                static unsigned int sec;
-                                    ^
-merge.c(132): warning: variable 'min' set but not used [-Wunused-but-set-variable]
-                static unsigned int min;
-                                    ^
-merge.c(220): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
-        *TIM2_CR1 |= (on_off <<0);
-                  ~~  ~~~~~~~^~~
-merge.c(222): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
-        *TIM2_CR1 &= (on_off << 0);
-                  ~~  ~~~~~~~^~~~
-merge.c(249): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
-        *TIM3_CCER &= ~(1<<4); //Sets CC2E (Capture/Computer 2 Enable) to 0 (to change TIM3 settings)
-                   ~~ ^~~~~~~
-merge.c(261): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
-        *TIM3_CCER &= ~(1<<4); //Sets CC2E (Capture/Compare 2 Enable) to 0
-                   ~~ ^~~~~~~
-merge.c(262): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
-        *TIM3_CCER |= on_off<<4; //Sets CC2E (Capture/Compare 2 Enable) to 1
-                   ~~ ~~~~~~^~~
-merge.c(265): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
+merge.c(214): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+                        *TIM2_SR = *TIM2_SR & (~(1 << 0)); // clear bit (Acknowledge the interrupt flag)
+                                            ~  ^~~~~~~~~
+merge.c(138): warning: variable 'sec' set but not used [-Wunused-but-set-variable]
+        static unsigned int sec;
+                            ^
+merge.c(139): warning: variable 'min' set but not used [-Wunused-but-set-variable]
+        static unsigned int min;
+                            ^
+merge.c(226): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+                *TIM2_CR1 |= (on_off << 0);
+                          ~~  ~~~~~~~^~~~
+merge.c(229): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+                *TIM2_CR1 &= (on_off << 0);
+                          ~~  ~~~~~~~^~~~
+merge.c(256): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+        *TIM3_CCER &= ~(1 << 4); // Sets CC2E (Capture/Computer 2 Enable) to 0 (to change TIM3 settings)
+                   ~~ ^~~~~~~~~
+merge.c(268): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+        *TIM3_CCER &= ~(1 << 4);   // Sets CC2E (Capture/Compare 2 Enable) to 0
+                   ~~ ^~~~~~~~~
+merge.c(269): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+        *TIM3_CCER |= on_off << 4; // Sets CC2E (Capture/Compare 2 Enable) to 1
+                   ~~ ~~~~~~~^~~~
+merge.c(272): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
 void TIM3_Init(){
               ^
                void
-merge.c(288): warning: binary integer literals are a GNU extension [-Wgnu-binary-literal]
-        *GPIOB_MODER &= ~(0b11 << 10); //Zero out MODE5
+merge.c(295): warning: binary integer literals are a GNU extension [-Wgnu-binary-literal]
+        *GPIOB_MODER &= ~(0b11 << 10); // Zero out MODE5
                           ^
-merge.c(288): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
-        *GPIOB_MODER &= ~(0b11 << 10); //Zero out MODE5
+merge.c(295): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+        *GPIOB_MODER &= ~(0b11 << 10); // Zero out MODE5
                      ~~ ^~~~~~~~~~~~~
-merge.c(289): warning: binary integer literals are a GNU extension [-Wgnu-binary-literal]
-        *GPIOB_MODER |=  (0b10 << 10); //Mode 5 = 10 (Alt Func Mode)
-                          ^
-merge.c(291): warning: binary integer literals are a GNU extension [-Wgnu-binary-literal]
-        *GPIOB_AFRL &= ~(0b1111 << 20); //Zero AFSEL5 (AF2 = TIM3/2)
+merge.c(296): warning: binary integer literals are a GNU extension [-Wgnu-binary-literal]
+        *GPIOB_MODER |= (0b10 << 10);  // Mode 5 = 10 (Alt Func Mode)
                          ^
-merge.c(291): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
-        *GPIOB_AFRL &= ~(0b1111 << 20); //Zero AFSEL5 (AF2 = TIM3/2)
+merge.c(298): warning: binary integer literals are a GNU extension [-Wgnu-binary-literal]
+        *GPIOB_AFRL &= ~(0b1111 << 20); // Zero AFSEL5 (AF2 = TIM3/2)
+                         ^
+merge.c(298): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+        *GPIOB_AFRL &= ~(0b1111 << 20); // Zero AFSEL5 (AF2 = TIM3/2)
                     ~~ ^~~~~~~~~~~~~~~
-merge.c(292): warning: binary integer literals are a GNU extension [-Wgnu-binary-literal]
-        *GPIOB_AFRL |=  (0b0010 << 20); //Set AFSEL5 to 0010 (AF2 = TIM3/2)
-                         ^
-merge.c(301): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
-        *TIM3_CR1 &= ~(1<<6 | 1<<5);
-                  ~~ ^~~~~~~~~~~~~~
+merge.c(299): warning: binary integer literals are a GNU extension [-Wgnu-binary-literal]
+        *GPIOB_AFRL |= (0b0010 << 20);  // Set AFSEL5 to 0010 (AF2 = TIM3/2)
+                        ^
 merge.c(308): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
-        *TIM3_CCER &= ~(1<<5);
-                   ~~ ^~~~~~~
-merge.c(324): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+        *TIM3_CR1 &= ~(1 << 6 | 1 << 5);
+                  ~~ ^~~~~~~~~~~~~~~~~~
+merge.c(315): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+        *TIM3_CCER &= ~(1 << 5);
+                   ~~ ^~~~~~~~~
+merge.c(330): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
         *TIM3_CCMR1 &= ~(1 << 24);
                     ~~ ^~~~~~~~~~
-merge.c(325): warning: binary integer literals are a GNU extension [-Wgnu-binary-literal]
-        *TIM3_CCMR1 &= ~(0b111 <<12);
+merge.c(331): warning: binary integer literals are a GNU extension [-Wgnu-binary-literal]
+        *TIM3_CCMR1 &= ~(0b111 << 12);
                          ^
-merge.c(325): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
-        *TIM3_CCMR1 &= ~(0b111 <<12);
-                    ~~ ^~~~~~~~~~~~~
-merge.c(326): warning: binary integer literals are a GNU extension [-Wgnu-binary-literal]
-        *TIM3_CCMR1 |= (0b110 <<12);
+merge.c(331): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+        *TIM3_CCMR1 &= ~(0b111 << 12);
+                    ~~ ^~~~~~~~~~~~~~
+merge.c(332): warning: binary integer literals are a GNU extension [-Wgnu-binary-literal]
+        *TIM3_CCMR1 |= (0b110 << 12);
                         ^
-merge.c(272): warning: unused variable 'TIM3_CNT' [-Wunused-variable]
-        volatile unsigned int* TIM3_CNT = (unsigned int*) 0x40000424;   //
+merge.c(279): warning: unused variable 'TIM3_CNT' [-Wunused-variable]
+        volatile unsigned int *TIM3_CNT = (unsigned int *)0x40000424; //
                                ^
-merge.c(351): warning: no newline at end of file [-Wnewline-eof]
+merge.c(358): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
+void pauseButton(){
+                ^
+                 void
+merge.c(364): warning: no newline at end of file [-Wnewline-eof]
 }
  ^
-33 warnings generated.
+merge.c(358): warning: no previous prototype for function 'pauseButton' [-Wmissing-prototypes]
+void pauseButton(){
+     ^
+merge.c(35): note: this declaration is not a prototype; add 'void' to make it a prototype for a zero-parameter function
+void pauseButton();
+     ^
+                 void
+35 warnings generated.
 compiling merge.c...
 linking...
-Program Size: Code=2730 RO-data=466 RW-data=44 ZI-data=1664  
-".\Objects\Project.axf" - 0 Error(s), 33 Warning(s).
+Program Size: Code=4822 RO-data=466 RW-data=44 ZI-data=1664  
+".\Objects\Project.axf" - 0 Error(s), 35 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -168,7 +180,7 @@ Package Vendor: Keil
       Include file:  Drivers/CMSIS/Device/ST/STM32L4xx/Include/stm32l4xx.h
       Source file:   Drivers/CMSIS/Device/ST/STM32L4xx/Source/Templates/system_stm32l4xx.c
       Source file:   Drivers/CMSIS/Device/ST/STM32L4xx/Source/Templates/arm/startup_stm32l476xx.s
-Build Time Elapsed:  00:00:01
+Build Time Elapsed:  00:00:02
 </pre>
 </body>
 </html>
