@@ -68,10 +68,10 @@ void TIM2_IRQHandler(){
 merge.c(218): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
                                 mode = setMode();
                                      ~ ^~~~~~~~~
-merge.c(221): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+merge.c(223): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
                                 *TIM2_SR = *TIM2_SR & (~(1 << 0)); // clear bit (Acknowledge the interrupt flag)
                                                     ~  ^~~~~~~~~
-merge.c(228): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+merge.c(230): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
                         *TIM2_SR = *TIM2_SR & (~(1 << 0)); // clear bit (Acknowledge the interrupt flag)
                                             ~  ^~~~~~~~~
 merge.c(129): warning: variable 'sec' set but not used [-Wunused-but-set-variable]
@@ -80,69 +80,69 @@ merge.c(129): warning: variable 'sec' set but not used [-Wunused-but-set-variabl
 merge.c(130): warning: variable 'min' set but not used [-Wunused-but-set-variable]
         static unsigned int min;
                             ^
-merge.c(240): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+merge.c(242): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
                 *TIM2_CR1 |= (on_off << 0);
                           ~~  ~~~~~~~^~~~
-merge.c(243): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+merge.c(245): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
                 *TIM2_CR1 &= (on_off << 0);
                           ~~  ~~~~~~~^~~~
-merge.c(270): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+merge.c(272): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
         *TIM3_CCER &= ~(1 << 4); // Sets CC2E (Capture/Computer 2 Enable) to 0 (to change TIM3 settings)
                    ~~ ^~~~~~~~~
-merge.c(282): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+merge.c(284): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
         *TIM3_CCER &= ~(1 << 4);   // Sets CC2E (Capture/Compare 2 Enable) to 0
                    ~~ ^~~~~~~~~
-merge.c(283): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+merge.c(285): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
         *TIM3_CCER |= on_off << 4; // Sets CC2E (Capture/Compare 2 Enable) to 1
                    ~~ ~~~~~~~^~~~
-merge.c(286): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
+merge.c(288): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
 void TIM3_Init(){
               ^
                void
-merge.c(309): warning: binary integer literals are a GNU extension [-Wgnu-binary-literal]
+merge.c(311): warning: binary integer literals are a GNU extension [-Wgnu-binary-literal]
         *GPIOB_MODER &= ~(0b11 << 10); // Zero out MODE5
                           ^
-merge.c(309): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+merge.c(311): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
         *GPIOB_MODER &= ~(0b11 << 10); // Zero out MODE5
                      ~~ ^~~~~~~~~~~~~
-merge.c(310): warning: binary integer literals are a GNU extension [-Wgnu-binary-literal]
+merge.c(312): warning: binary integer literals are a GNU extension [-Wgnu-binary-literal]
         *GPIOB_MODER |= (0b10 << 10);  // Mode 5 = 10 (Alt Func Mode)
                          ^
-merge.c(312): warning: binary integer literals are a GNU extension [-Wgnu-binary-literal]
+merge.c(314): warning: binary integer literals are a GNU extension [-Wgnu-binary-literal]
         *GPIOB_AFRL &= ~(0b1111 << 20); // Zero AFSEL5 (AF2 = TIM3/2)
                          ^
-merge.c(312): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+merge.c(314): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
         *GPIOB_AFRL &= ~(0b1111 << 20); // Zero AFSEL5 (AF2 = TIM3/2)
                     ~~ ^~~~~~~~~~~~~~~
-merge.c(313): warning: binary integer literals are a GNU extension [-Wgnu-binary-literal]
+merge.c(315): warning: binary integer literals are a GNU extension [-Wgnu-binary-literal]
         *GPIOB_AFRL |= (0b0010 << 20);  // Set AFSEL5 to 0010 (AF2 = TIM3/2)
                         ^
-merge.c(322): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+merge.c(324): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
         *TIM3_CR1 &= ~(1 << 6 | 1 << 5);
                   ~~ ^~~~~~~~~~~~~~~~~~
-merge.c(329): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+merge.c(331): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
         *TIM3_CCER &= ~(1 << 5);
                    ~~ ^~~~~~~~~
-merge.c(344): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+merge.c(346): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
         *TIM3_CCMR1 &= ~(1 << 24);
                     ~~ ^~~~~~~~~~
-merge.c(345): warning: binary integer literals are a GNU extension [-Wgnu-binary-literal]
+merge.c(347): warning: binary integer literals are a GNU extension [-Wgnu-binary-literal]
         *TIM3_CCMR1 &= ~(0b111 << 12);
                          ^
-merge.c(345): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+merge.c(347): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
         *TIM3_CCMR1 &= ~(0b111 << 12);
                     ~~ ^~~~~~~~~~~~~~
-merge.c(346): warning: binary integer literals are a GNU extension [-Wgnu-binary-literal]
+merge.c(348): warning: binary integer literals are a GNU extension [-Wgnu-binary-literal]
         *TIM3_CCMR1 |= (0b110 << 12);
                         ^
-merge.c(293): warning: unused variable 'TIM3_CNT' [-Wunused-variable]
+merge.c(295): warning: unused variable 'TIM3_CNT' [-Wunused-variable]
         volatile unsigned int *TIM3_CNT = (unsigned int *)0x40000424; //
                                ^
-merge.c(372): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
+merge.c(374): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
 void pauseButton(){
                 ^
                  void
-merge.c(372): warning: no previous prototype for function 'pauseButton' [-Wmissing-prototypes]
+merge.c(374): warning: no previous prototype for function 'pauseButton' [-Wmissing-prototypes]
 void pauseButton(){
      ^
 merge.c(35): note: this declaration is not a prototype; add 'void' to make it a prototype for a zero-parameter function
@@ -152,7 +152,7 @@ void pauseButton();
 36 warnings generated.
 compiling merge.c...
 linking...
-Program Size: Code=5062 RO-data=466 RW-data=44 ZI-data=1664  
+Program Size: Code=5078 RO-data=466 RW-data=44 ZI-data=1664  
 ".\Objects\Project.axf" - 0 Error(s), 36 Warning(s).
 
 <h2>Software Packages used:</h2>
@@ -183,7 +183,7 @@ Package Vendor: Keil
       Source file:   MDK/Device/Source/ARM/STM32L4xx_DB_OPT.s
       Source file:   Drivers/CMSIS/Device/ST/STM32L4xx/Source/Templates/arm/startup_stm32l476xx.s
       Source file:   Drivers/CMSIS/Device/ST/STM32L4xx/Source/Templates/system_stm32l4xx.c
-Build Time Elapsed:  00:00:01
+Build Time Elapsed:  00:00:02
 </pre>
 </body>
 </html>

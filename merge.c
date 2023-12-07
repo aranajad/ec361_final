@@ -217,6 +217,8 @@ void TIM2_IRQHandler(){
 				LCD_Clear(); //(Acknowledge the interrupt flag)
 				mode = setMode();
 				LCD_Clear(); //(Acknowledge the interrupt flag)
+				playTune(C);
+				playTune(sharpC);
 				TIM2_Enable(ON);
 				*TIM2_SR = *TIM2_SR & (~(1 << 0)); // clear bit (Acknowledge the interrupt flag)
 				brk = 0;
