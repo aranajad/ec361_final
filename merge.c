@@ -1,5 +1,5 @@
 #define period 3999999
-#define cyclestudy 4
+#define cyclestudy 2
 #define ON (unsigned char)1
 #define OFF (unsigned char)0
 
@@ -39,7 +39,6 @@ void TIM2_IRQHandler(void);
 void TIM2_Enable(unsigned char a);
 static unsigned int mode = 1;
 static unsigned int start = 0;
-static unsigned int paused = 0;
 
 int main(void){
 	GPIO_Init();
@@ -50,12 +49,10 @@ int main(void){
 	playTune(sharpC);
 	playTune(D);
 	playTune(sharpD);
-	playTune(E);
 	playTune(F);
 	playTune(sharpF);
 	playTune(G);
 	playTune(sharpG);
-	playTune(A);
 //	while(1){}
 	
 	TIM2_Init();
@@ -66,12 +63,6 @@ int main(void){
 			mode = setMode();
 		}
 		*/
-/* 
-		if (paused){
-			pauseButton();
-			paused = 0;
-		}
-		 */
 	}
 }
 
@@ -154,7 +145,6 @@ void TIM2_IRQHandler(){
 			tsec = 10;
 		}
 		start = 1; // set start flag so tsec is not initiated again
-		paused = 0;
 	}
 	if (!done){
 		if ((*(TIM2_SR) & 1)){ // check for counter update when cnt == arr //flip done and have everything else in else**
@@ -175,11 +165,17 @@ void TIM2_IRQHandler(){
 						tsec = 5; // initialize break time 5 sec for mode 3 demo
 					}
 					brk = 1;
-					TIM2_Enable(OFF);
-					playTune(F);
+					if(cycle + 1 == cyclestudy){
+						cycle++; // update cycle count when timer ends at the end of a cycle
+						if (cycle == cyclestudy) {
+							finlb = 1;
+						}
+					}
+					//TIM2_Enable(OFF);
+					playTune(sharpG);
 				}
 				// WHEN BREAK IS FINISHED*
-				else if ((tsec == 0) && brk){ // timer reaches 0 and we are taking a break
+				if ((tsec == 0) && brk){ // timer reaches 0 and we are taking a break
 					if (mode == 1){
 						tsec = 1500; // initialize study time 5 min for mode 1
 					}
@@ -189,17 +185,14 @@ void TIM2_IRQHandler(){
 					else if (mode == 3){
 						tsec = 10; // initialize study time 5 sec for mode 3 demo
 					}
-					cycle++; // update cycle count when timer ends at the end of a cycle
-					if (cycle == cyclestudy) {
-						finlb = 1;
-					}
 					brk = 0;
+					cycle++;
 					//TIM2_Enable(OFF);
-					//playTune(F);
+					playTune(F);
 				}
 				print_mode(!brk);
 			}
-			else if ((cycle == cyclestudy) && finlb){ // move to long break when expected cycle meets cycles and not done with all cycles
+			if ((cycle == cyclestudy) && finlb){ // move to long break when expected cycle meets cycles and not done with all cycles
 				if (mode == 1){
 					tsec = 1200; // 20 min break (1200s) for mode 1
 				}
@@ -209,12 +202,25 @@ void TIM2_IRQHandler(){
 				else if (mode == 3){
 					tsec = 20; // 20 sec break for mode 3 demo
 				}
+				print_mode(!brk);
 				finlb = 0;
 			}
 			else if ((tsec == 0) && !finlb){
-				done = 1;  // sets "completed all cycles" flag
+				done = 0;  // sets "completed all cycles" flag
 				cycle = 0; // reset cycle counter
 				start = 0; // reset start flag
+				TIM2_Enable(OFF);
+				playTune(F);
+				playTune(sharpF);
+				playTune(G);
+				playTune(sharpG);
+				LCD_Clear(); //(Acknowledge the interrupt flag)
+				mode = setMode();
+				LCD_Clear(); //(Acknowledge the interrupt flag)
+				TIM2_Enable(ON);
+				*TIM2_SR = *TIM2_SR & (~(1 << 0)); // clear bit (Acknowledge the interrupt flag)
+				brk = 0;
+				return;
 			}
 
 			// update display to show study timer
