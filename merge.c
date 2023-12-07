@@ -139,7 +139,8 @@ void TIM2_IRQHandler(){
 	static unsigned int min;
 	static unsigned int cycle;
 	static unsigned int done = 0;
-	static unsigned int brk = 0;
+	static unsigned int brk;
+	static unsigned int finlb;
 
 	// deal with start refresh**
 	if (!start){
@@ -174,7 +175,7 @@ void TIM2_IRQHandler(){
 						tsec = 5; // initialize break time 5 sec for mode 3 demo
 					}
 					brk = 1;
-					//TIM2_Enable(OFF);
+					TIM2_Enable(OFF);
 					playTune(F);
 				}
 				// WHEN BREAK IS FINISHED*
@@ -189,13 +190,16 @@ void TIM2_IRQHandler(){
 						tsec = 25; // initialize study time 5 sec for mode 3 demo
 					}
 					cycle++; // update cycle count when timer ends at the end of a cycle
+					if (cycle == cyclestudy) {
+						finlb = 1;
+					}
 					brk = 0;
 					//TIM2_Enable(OFF);
-					playTune(F);
+					//playTune(F);
 				}
 				print_mode(!brk);
 			}
-			else if ((cycle == cyclestudy)){ // move to long break when expected cycle meets cycles and not done with all cycles
+			else if ((cycle == cyclestudy) && finlb){ // move to long break when expected cycle meets cycles and not done with all cycles
 				if (mode == 1){
 					tsec = 1200; // 20 min break (1200s) for mode 1
 				}
@@ -205,10 +209,14 @@ void TIM2_IRQHandler(){
 				else if (mode == 3){
 					tsec = 20; // 20 sec break for mode 3 demo
 				}
-				cycle = 0; // reset cycle counter
+				finlb = 0;
+			}
+			else if ((tsec == 0) && !finlb){
 				done = 1;  // sets "completed all cycles" flag
+				cycle = 0; // reset cycle counter
 				start = 0; // reset start flag
 			}
+
 			// update display to show study timer
 			print_time(tsec);
 			*TIM2_SR = *TIM2_SR & (~(1 << 0)); // clear bit (Acknowledge the interrupt flag)
