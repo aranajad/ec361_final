@@ -1,11 +1,12 @@
 #define period 3999999
 #define cyclestudy 4
-//#define debug 1
+#define debug 1
 
 void TIM2_Init(void);
 void TIM2_IRQHandler(void);
 static unsigned int mode = 3;
-
+static unsigned int start = 0;
+static unsigned int paused = 0;
 
 #ifdef debug
 int main(void){
@@ -14,27 +15,25 @@ int main(void){
 	}
 #endif
 	
-void TIM2_Init(void)	
-		{
-	
-	volatile unsigned int* RCC_AHB2ENR = (unsigned int*) 0x4002104C;
-	volatile unsigned int* RCC_APB1ENR1 = (unsigned int*) 0x40021058;
-	volatile unsigned int* TIM2_ARR = (unsigned int*) 0x4000002C;
-	volatile unsigned int* TIM2_CR1 = (unsigned int*) 0x40000000;	
-	volatile unsigned int* TIM2_PSC = (unsigned int*) 0x40000028;	
-	volatile unsigned int* TIM2_CNT = (unsigned int*) 0x40000024;	
-	volatile unsigned int* TIM2_DIER = (unsigned int*) 0x4000000C;	
-	volatile unsigned int* NVIC_ISER0 = (unsigned int*) 0xE000E100;	
-	//void PWM_Init(unsigned int duty, unsigned int period)
-	//volatile unsigned int* TIM2_CCR1 = (unsigned int*) 0x40000034;
-	//volatile unsigned int* GPIOB_MODER = (unsigned int*) 0x48000400; //GPIOB, using PB3: Tim2-CH2
-	//volatile unsigned int* GPIOB_AFRL = (unsigned int*) 0x48000020;		//AF1; dont worry using this, for pwm	
-	//volatile unsigned int* TIM2_CCMR1 = (unsigned int*) 0x40000018;
-	//volatile unsigned int* TIM2_CCER = (unsigned int*) 0x40000020;	same with all these above
-	
+void TIM2_Init(void){
+	volatile unsigned int *RCC_AHB2ENR = (unsigned int *)0x4002104C;
+	volatile unsigned int *RCC_APB1ENR1 = (unsigned int *)0x40021058;
+	volatile unsigned int *TIM2_ARR = (unsigned int *)0x4000002C;
+	volatile unsigned int *TIM2_CR1 = (unsigned int *)0x40000000;
+	volatile unsigned int *TIM2_PSC = (unsigned int *)0x40000028;
+	volatile unsigned int *TIM2_CNT = (unsigned int *)0x40000024;
+	volatile unsigned int *TIM2_DIER = (unsigned int *)0x4000000C;
+	volatile unsigned int *NVIC_ISER0 = (unsigned int *)0xE000E100;
+	// void PWM_Init(unsigned int duty, unsigned int period)
+	// volatile unsigned int* TIM2_CCR1 = (unsigned int*) 0x40000034;
+	// volatile unsigned int* GPIOB_MODER = (unsigned int*) 0x48000400; //GPIOB, using PB3: Tim2-CH2
+	// volatile unsigned int* GPIOB_AFRL = (unsigned int*) 0x48000020;		//AF1; dont worry using this, for pwm
+	// volatile unsigned int* TIM2_CCMR1 = (unsigned int*) 0x40000018;
+	// volatile unsigned int* TIM2_CCER = (unsigned int*) 0x40000020;	same with all these above
+
 	// Enable GPIOA peripheral clock
 	*RCC_AHB2ENR |= (0x01);
-	
+
 	//***********
 	// Configure PA0 to alt. function mode
 	//*GPIOB_MODER = (*GPIOB_MODER | (1 << 1)) & ~(1 << 0);
@@ -47,108 +46,121 @@ void TIM2_Init(void)
 
 	// Set auto-reload (period)
 	*TIM2_ARR = period;
-	
+
 	// Set duty cycle
 	//*TIM2_CCR1 = duty;
-	
-	//set PSC if needed (0 by default)
+
+	// set PSC if needed (0 by default)
 	*TIM2_PSC = 0;
-	
+
 	//***********
 	// Select PWM mode 1 on channel 1 (OC1)
 	//*TIM2_CCMR1 &= ~(1 << 16);
 	//*TIM2_CCMR1 = (*TIM2_CCMR1 | (3 << 5)) & ~(1 << 4 ); FOR PWM NOT NEEDED
 	// Enable output for channel 1
 	//*TIM2_CCER |= 1;						 FOR PWM NOT NEEDED
-	
-	//enable up-counting mode: clr tim2_cr1(4) AND enable clock tim2_crl(0);
+
+	// enable up-counting mode: clr tim2_cr1(4) AND enable clock tim2_crl(0);
 	*TIM2_CR1 |= (1 << 0);
-	
-	//Enable capture/compare and update interrupts: TIM2_DIER(1:0) = "11"
+
+	// Enable capture/compare and update interrupts: TIM2_DIER(1:0) = "11"
 	*TIM2_DIER = 3;
-	
-	//Enable TIM2 interrupts in NVIC: NVIC
+
+	// Enable TIM2 interrupts in NVIC: NVIC
 	*NVIC_ISER0 |= (1 << 28);
-	
+
 	return;
 }
-	
-void TIM2_IRQHandler()
-{
-		volatile unsigned int*TIM2_SR = (unsigned int*) 0x40000010;
-		static unsigned int tsec; // 25 min (1500s)
-		static unsigned int sec;
-		static unsigned int min;
-		static unsigned int cycle;
-		static unsigned int done = 0;
-		static unsigned int brk = 0;
-		static unsigned int start = 0;
-		
-		//deal with start refresh**
-		if(!start)  {
-			if (mode == 1){ 
-				tsec = 1500;
-			}
-			else if (mode == 2) {
-				tsec = 3000;
-			}
-			else if (mode == 3){
-				tsec = 25;
-			}
-			start = 1; //set start flag so tsec is not initiated again
+
+void TIM2_IRQHandler(){
+	volatile unsigned int *TIM2_SR = (unsigned int *)0x40000010;
+	static unsigned int tsec; // 25 min (1500s)
+	static unsigned int sec;
+	static unsigned int min;
+	static unsigned int cycle;
+	static unsigned int done = 0;
+	static unsigned int brk;
+	static unsigned int finlb;
+
+	// deal with start refresh**
+	if (!start){
+		if (mode == 1){
+			tsec = 1500;
 		}
-			
-		if ((*(TIM2_SR) & 1) && !done){ //check for counter update when cnt == arr //flip done and have everything else in else**
-			tsec--;	//decrement total seconds 
-			sec = tsec%60; // calc sec
-			min = tsec/60; // calc min
-			
-			if ((cycle < cyclestudy) && !done){  //number of times cycle should repeat; if number of cycles less than expected number of cycles and not done
-			
-				if ((tsec == 0) && !brk){ //switch to break timer when 5 min left (300s)
+		else if (mode == 2){
+			tsec = 3000;
+		}
+		else if (mode == 3){
+			tsec = 25;
+		}
+		start = 1; // set start flag so tsec is not initiated again
+		paused = 0;
+	}
+	if (!done){
+		if ((*(TIM2_SR) & 1)){ // check for counter update when cnt == arr //flip done and have everything else in else**
+			tsec--;
+			sec = tsec % 60; // calc sec
+			min = tsec / 60; // calc min
+
+			if ((cycle < cyclestudy)){ // number of times cycle should repeat; if number of cycles less than expected number of cycles and not done
+
+				if ((tsec == 0) && !brk){ // switch to break timer when 5 min left (300s)
 					if (mode == 1){
 						tsec = 300; // initialize break time 5 min for mode 1
-						
 					}
-					else if(mode == 2){
+					else if (mode == 2){
 						tsec = 600; // initialize break time 10 min for mode 2
-					}				
-					else if (mode == 3){ 
-					tsec = 5; // initialize break time 5 sec for mode 3 demo
-					}	
+					}
+					else if (mode == 3){
+						tsec = 5; // initialize break time 5 sec for mode 3 demo
+					}
 					brk = 1;
+					//TIM2_Enable(OFF);
+					//playTune(F);
 				}
-				// WHEN BREAK IS FINISHED*				
-				else if ((tsec == 0) && brk) { //timer reaches 0 
+				// WHEN BREAK IS FINISHED*
+				else if ((tsec == 0) && brk){ // timer reaches 0 and we are taking a break
 					if (mode == 1){
 						tsec = 1500; // initialize study time 5 min for mode 1
 					}
-					else if(mode == 2){
+					else if (mode == 2){
 						tsec = 3000; // initialize study time 10 min for mode 2
-					}				
-					else if (mode == 3){ 
-					tsec = 25; // initialize study time 5 sec for mode 3 demo
 					}
-					cycle++; //update cycle count when timer ends at the end of a cycle
+					else if (mode == 3){
+						tsec = 25; // initialize study time 5 sec for mode 3 demo
+					}
+					cycle++; // update cycle count when timer ends at the end of a cycle
+					if (cycle == cyclestudy) {
+						finlb = 1;
+					}
 					brk = 0;
-					}
+					//TIM2_Enable(OFF);
+					//playTune(F);
+				}
+				//print_mode(!brk);
 			}
-			else if ((cycle == cyclestudy) && !done){ //move to long break when expected cycle meets cycles and not done with all cycles
+			else if ((cycle == cyclestudy) && finlb){ // move to long break when expected cycle meets cycles and not done with all cycles
 				if (mode == 1){
-					tsec = 1200; //20 min break (1200s) for mode 1
+					tsec = 1200; // 20 min break (1200s) for mode 1
 				}
 				else if (mode == 2){
-					tsec = 2400; //40 min break (2400s) for mode 2
+					tsec = 2400; // 40 min break (2400s) for mode 2
 				}
 				else if (mode == 3){
-					tsec = 20; //20 sec break for mode 3 demo
+					tsec = 20; // 20 sec break for mode 3 demo
 				}
-			cycle = 0; //reset cycle counter
-			done = 1; // sets "completed all cycles" flag
-			start = 0; //reset start flag
+				finlb = 0;
 			}
-			//update display to show study timer
-			*TIM2_SR = *TIM2_SR & (~(1 << 0)); //clear bit
+			else if ((tsec == 0) && !finlb){
+				done = 1;  // sets "completed all cycles" flag
+				cycle = 0; // reset cycle counter
+				start = 0; // reset start flag
+			}
+
+			// update display to show study timer
+			//print_time(tsec);
+			*TIM2_SR = *TIM2_SR & (~(1 << 0)); // clear bit (Acknowledge the interrupt flag)
 		}
-		return;
+	}
+	return;
 }
